@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import io
 from config import CUENTAS
-st.title("Prueba conciliación")
+st.title("Conciliación bancaria")
 
 st.header("Arrastra los estados de cuenta")
 uploaded_files = {}
@@ -16,7 +16,7 @@ for banco, cuentas in CUENTAS.items():
     col_list = tab_dict[banco].columns(len(cuentas))
     for i,cuenta in enumerate(cuentas):
         cols[(banco,cuenta)]= col_list[i]
-# Agregamos los widget para arrastrar el archivo
+# Agregamos los widgets para arrastrar el archivo
 for banco, cuentas in CUENTAS.items():
     for cuenta in cuentas:
         uploaded_files[(banco,cuenta)] = cols[(banco,cuenta)].file_uploader(
@@ -24,13 +24,17 @@ for banco, cuentas in CUENTAS.items():
             type=['csv', 'xlsx', 'txt'],
             accept_multiple_files=False,
         )
-
+        if uploaded_files[(banco,cuenta)]:
+            cols[(banco,cuenta)].markdown(f'agregado archivo de cuenta {cuenta} de {banco}')
 st.header("Arrastra el reporte de caja de SAP")
 uploaded_files['sap'] = st.file_uploader(
     'Caja Partidas Individuales',
     type=['csv', 'xlsx'],
     accept_multiple_files=False
 )
+if uploaded_files['sap']:
+    st.markdown('Agregado reporte de SAP')
+
 def conciliar(files):
     print(files)
     for banco,cuentas in CUENTAS.items():
