@@ -43,7 +43,6 @@ if uploaded_files['sap']:
 
 # Agregamos selector de periodo a conciliar
 periodo = st.date_input('Periodo a conciliar',get_current_month_range(),format='DD.MM.YYYY')
-if len(uploaded_files)>=2:
-    if uploaded_files['sap']:
-        st.button('Conciliar',on_click=conciliar,args=[pd.concat(dfs_edo_cta.values()), sap_caja, periodo])
+if len(uploaded_files)>=2 and uploaded_files['sap'] and periodo:
+    st.button('Conciliar',on_click=conciliar,args=[pd.concat(dfs_edo_cta.values()), sap_caja, periodo])
 
