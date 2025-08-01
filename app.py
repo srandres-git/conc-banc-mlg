@@ -34,7 +34,7 @@ uploaded_files['sap'] = st.file_uploader(
 def conciliar(files: dict):
     for banco,cuentas in CUENTAS.items():
         for cuenta in cuentas:
-            if files[((banco,cuenta))]:
+            if files[(banco,cuenta)]:
                 st.markdown(f'Cuenta {cuenta} de {banco} procesada...')
     if files['sap']:
         st.markdown('Reporte de SAP procesado.')
