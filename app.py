@@ -31,7 +31,7 @@ uploaded_files['sap'] = st.file_uploader(
     type=['csv', 'xlsx'],
     accept_multiple_files=False
 )
-def conciliar(files: dict):
+def conciliar(*files):
     for banco,cuentas in CUENTAS.items():
         for cuenta in cuentas:
             if files[(banco,cuenta)]:
