@@ -46,5 +46,5 @@ def conciliar(dfs_edo_cta: dict, sap_caja: pd.DataFrame):
 
 if len(uploaded_files)>=2:
     if uploaded_files['sap']:
-        st.button('Conciliar',on_click=conciliar,args=[uploaded_files, sap_caja])
+        st.button('Conciliar',on_click=conciliar,args=[dfs_edo_cta, sap_caja])
 
