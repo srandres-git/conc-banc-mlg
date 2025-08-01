@@ -31,7 +31,7 @@ uploaded_files['sap'] = st.file_uploader(
     type=['csv', 'xlsx'],
     accept_multiple_files=False
 )
-def conciliar(*files):
+def conciliar(files):
     print(files)
     for banco,cuentas in CUENTAS.items():
         for cuenta in cuentas:
@@ -42,5 +42,5 @@ def conciliar(*files):
 
 if len(uploaded_files)>=2:
     if uploaded_files['sap']:
-        st.button('Conciliar',on_click=conciliar,args=uploaded_files)
+        st.button('Conciliar',on_click=conciliar,args=[uploaded_files])
 
