@@ -31,7 +31,15 @@ uploaded_files['sap'] = st.file_uploader(
     type=['csv', 'xlsx'],
     accept_multiple_files=False
 )
-
+def conciliar(files: dict):
+    for banco,cuentas in CUENTAS.items():
+        for cuenta in cuentas:
+            if files[((banco,cuenta))]:
+                st.markdown(f'Cuenta {cuenta} de {banco} procesada...')
+    if files['sap']:
+        st.markdown('Reporte de SAP procesado.')
+        
 if len(uploaded_files)>=2:
     if uploaded_files['sap']:
-        st.button('Conciliar',on_click=lambda x: st.markdown('Conciliando...'))
+        st.button('Conciliar',on_click=conciliar,kwargs=uploaded_files)
+
