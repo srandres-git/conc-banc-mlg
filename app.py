@@ -2,10 +2,12 @@ import streamlit as st
 import pandas as pd
 import io
 from config import CUENTAS
+from cves import asign_cve
 st.title("Conciliación bancaria")
 
 st.header("Arrastra los estados de cuenta")
 uploaded_files = {}
+dfs_edo_cta = {}
 # Creamos las tabs por banco
 tabs = st.tabs(CUENTAS.keys())
 tab_dict = {banco: t for banco,t in zip(CUENTAS.keys(),tabs)}
@@ -25,7 +27,8 @@ for banco, cuentas in CUENTAS.items():
             accept_multiple_files=False,
         )
         if uploaded_files[(banco,cuenta)]:
-            cols[(banco,cuenta)].markdown(f'agregado archivo de cuenta {cuenta} de {banco}')
+            dfs_edo_cta[(banco,cuenta)] = asign_cve(uploaded_files[(banco,cuenta)],banco,cuenta)
+            cols[(banco,cuenta)].markdown('Procesado')
 st.header("Arrastra el reporte de caja de SAP")
 uploaded_files['sap'] = st.file_uploader(
     'Caja Partidas Individuales',
@@ -33,7 +36,7 @@ uploaded_files['sap'] = st.file_uploader(
     accept_multiple_files=False
 )
 if uploaded_files['sap']:
-    st.markdown('Agregado reporte de SAP')
+    st.markdown('Procesado')
 
 def conciliar(files):
     print(files)
