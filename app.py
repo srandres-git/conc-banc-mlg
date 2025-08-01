@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from config import CUENTAS
+from config import CUENTAS, TYPES_EDO_CTA
 from cves import asign_cve
 from utils import get_current_month_range
 from conc import conciliar
@@ -25,12 +25,12 @@ for banco, cuentas in CUENTAS.items():
     for cuenta in cuentas:
         uploaded_files[(banco,cuenta)] = cols[(banco,cuenta)].file_uploader(
             f"Cuenta {cuenta}",
-            type=['csv', 'xlsx', 'txt'],
+            type=TYPES_EDO_CTA[banco],
             accept_multiple_files=False,
         )
         if uploaded_files[(banco,cuenta)]:
             dfs_edo_cta[(banco,cuenta)] = asign_cve(uploaded_files[(banco,cuenta)],banco,cuenta)
-            cols[(banco,cuenta)].markdown('Procesado correctamente')
+            cols[(banco,cuenta)].markdown('Procesado correctamente.')
 
 st.header("Arrastra el reporte de caja de SAP")
 uploaded_files['sap'] = st.file_uploader(
@@ -40,7 +40,7 @@ uploaded_files['sap'] = st.file_uploader(
 )
 if uploaded_files['sap']:
     sap_caja = pd.read_excel(uploaded_files['sap'])
-    st.markdown('Procesado correctamente')
+    st.markdown('Procesado correctamente.')
 
 # Agregamos selector de periodo a conciliar
 periodo = st.date_input('Periodo a conciliar',get_current_month_range(),format='DD.MM.YYYY')

@@ -9,7 +9,15 @@ CUENTAS = {
     'Banorte': ['858'],
     'PNC': ['865']
 }
-
+# extensiones de archivo aceptadas para cada estado de cuenta
+TYPES_EDO_CTA = {
+    'Banamex':'csv',
+    'Santander': 'csv',
+    'HSBC': 'xlsx',
+    'BBVA': 'txt',
+    'Banorte': 'csv',
+    'PNC': 'csv'
+}
 
 # nombre de la columna del reporte de caja que contiene la clave de movimiento bancario
 COL_CLAVE_MOV = 'Texto de cabecera'
