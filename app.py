@@ -3,6 +3,7 @@ import pandas as pd
 import io
 from config import CUENTAS
 from cves import asign_cve
+from conc import conciliacion
 st.title("Conciliación bancaria")
 
 st.header("Arrastra los estados de cuenta")
@@ -36,18 +37,15 @@ uploaded_files['sap'] = st.file_uploader(
     accept_multiple_files=False
 )
 if uploaded_files['sap']:
+    sap_caja = pd.read_excel(uploaded_files['sap'])
     st.markdown('Procesado')
 
-def conciliar(files):
-    print(files)
-    for banco,cuentas in CUENTAS.items():
-        for cuenta in cuentas:
-            if files[(banco,cuenta)]:
-                st.markdown(f'Cuenta {cuenta} de {banco} procesada...')
-    if files['sap']:
-        st.markdown('Reporte de SAP procesado.')
+def conciliar(dfs_edo_cta: dict, sap_caja: pd.DataFrame):
+   # concatenamos los estados de cuenta
+   edo_cta_cves = pd.concat(dfs_edo_cta.values())
+   conciliacion(edo_cta_cves=edo_cta_cves, sap_caja=sap_caja)
 
 if len(uploaded_files)>=2:
     if uploaded_files['sap']:
-        st.button('Conciliar',on_click=conciliar,args=[uploaded_files])
+        st.button('Conciliar',on_click=conciliar,args=[uploaded_files, sap_caja])
 
