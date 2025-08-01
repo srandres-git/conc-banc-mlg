@@ -38,8 +38,8 @@ def conciliar(files: dict):
                 st.markdown(f'Cuenta {cuenta} de {banco} procesada...')
     if files['sap']:
         st.markdown('Reporte de SAP procesado.')
-        
+
 if len(uploaded_files)>=2:
     if uploaded_files['sap']:
-        st.button('Conciliar',on_click=conciliar,kwargs=uploaded_files)
+        st.button('Conciliar',on_click=conciliar,args=uploaded_files)
 
