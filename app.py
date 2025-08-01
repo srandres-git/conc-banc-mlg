@@ -2,7 +2,9 @@ import streamlit as st
 import pandas as pd
 from config import CUENTAS
 from cves import asign_cve
-from conc import conciliacion
+from conc import conciliar
+from utils import get_current_month_range
+
 st.title("Conciliación bancaria")
 
 st.header("Arrastra los estados de cuenta")
@@ -18,7 +20,7 @@ for banco, cuentas in CUENTAS.items():
     col_list = tab_dict[banco].columns(len(cuentas))
     for i,cuenta in enumerate(cuentas):
         cols[(banco,cuenta)]= col_list[i]
-# Agregamos los widgets para arrastrar el archivo
+# Agregamos los widgets para arrastrar los archivos
 for banco, cuentas in CUENTAS.items():
     for cuenta in cuentas:
         uploaded_files[(banco,cuenta)] = cols[(banco,cuenta)].file_uploader(
@@ -28,7 +30,7 @@ for banco, cuentas in CUENTAS.items():
         )
         if uploaded_files[(banco,cuenta)]:
             dfs_edo_cta[(banco,cuenta)] = asign_cve(uploaded_files[(banco,cuenta)],banco,cuenta)
-            cols[(banco,cuenta)].markdown('Procesado')
+            cols[(banco,cuenta)].markdown('Procesado correctamente')
 st.header("Arrastra el reporte de caja de SAP")
 uploaded_files['sap'] = st.file_uploader(
     'Caja Partidas Individuales',
@@ -37,14 +39,11 @@ uploaded_files['sap'] = st.file_uploader(
 )
 if uploaded_files['sap']:
     sap_caja = pd.read_excel(uploaded_files['sap'])
-    st.markdown('Procesado')
+    st.markdown('Procesado correctamente')
 
-def conciliar(dfs_edo_cta: dict, sap_caja: pd.DataFrame):
-   # concatenamos los estados de cuenta
-   edo_cta_cves = pd.concat(dfs_edo_cta.values())
-   conciliacion(edo_cta_cves=edo_cta_cves, sap_caja=sap_caja)
-
+# Agregamos selector de periodo a conciliar
+periodo = st.date_input('Periodo a conciliar',get_current_month_range(),format='DD.MM.YYYY')
 if len(uploaded_files)>=2:
     if uploaded_files['sap']:
-        st.button('Conciliar',on_click=conciliar,args=[dfs_edo_cta, sap_caja])
+        st.button('Conciliar',on_click=conciliar,args=[pd.concat(dfs_edo_cta.values()), sap_caja, periodo])
 

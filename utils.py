@@ -1,6 +1,8 @@
 import chardet
 import pandas as pd
 import re
+from datetime import datetime, date
+import calendar
 from config import SEPARADOR
 
 def separar_texto_cabecera(texto):
@@ -27,6 +29,16 @@ def separar_texto_cabecera(texto):
             return '#', '#', partes[0]
     else:
         return '#', '#', '#'
+    
+def get_current_month_range()->tuple:
+    """Obtiene las fechas del primer y último día del mes actual"""
+    # Current date
+    today = date.today()
+    # First day of current month
+    first_day = today.replace(day=1)
+    # Last day of current month
+    last_day = today.replace(day=calendar.monthrange(today.year, today.month)[1])
+    return first_day,last_day
     
 def get_encoding(uploaded_file):
     content = uploaded_file.read()               # bytes
