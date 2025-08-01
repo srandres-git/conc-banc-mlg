@@ -31,7 +31,7 @@ for banco, cuentas in CUENTAS.items():
         if uploaded_files[(banco,cuenta)]:
             dfs_edo_cta[(banco,cuenta)] = asign_cve(uploaded_files[(banco,cuenta)],banco,cuenta)
             cols[(banco,cuenta)].markdown('Procesado correctamente')
-        else: uploaded_files[(banco,cuenta)] = None
+
 st.header("Arrastra el reporte de caja de SAP")
 uploaded_files['sap'] = st.file_uploader(
     'Caja Partidas Individuales',
@@ -45,6 +45,6 @@ if uploaded_files['sap']:
 # Agregamos selector de periodo a conciliar
 periodo = st.date_input('Periodo a conciliar',get_current_month_range(),format='DD.MM.YYYY')
 # Validamos que se haya ingresado al menos un estado de cuenta, el reporte de SAP y el periodo a conciliar
-if len(uploaded_files)>=2 and uploaded_files['sap'] and periodo:
+if len(dfs_edo_cta)>=1 and uploaded_files['sap'] and periodo:
     st.button('Conciliar',on_click=conciliar,args=[pd.concat(dfs_edo_cta.values()), sap_caja, periodo])
 
