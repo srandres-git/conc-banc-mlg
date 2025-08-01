@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import io
 from config import CUENTAS
 from cves import asign_cve
 from conc import conciliacion

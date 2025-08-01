@@ -2,6 +2,32 @@ import chardet
 import pandas as pd
 import re
 from config import SEPARADOR
+
+def separar_texto_cabecera(texto):
+    partes = texto.split(SEPARADOR)
+    if len(partes) >= 3:
+        return partes[0], partes[1], partes[2]
+    elif len(partes) == 2:
+        return partes[0],  partes[1], '#'
+    elif len(partes) == 1:
+        # buscamos el patrón [4 dígitos]_[T o G][10 dígitos], donde los 4 dígitos son el tipo de movimiento
+        # y los 10 dígitos son la clave de movimiento bancario
+        match = re.match(r'(\d{4})_([TG]\d{10})', partes[0])
+        if match:
+            tipo_movimiento = match.group(1)
+            clave_mov_bancario = match.group(2)
+            return tipo_movimiento, clave_mov_bancario, '#' 
+        # verificamos que se pueda extraer algún formato de clave de movimiento bancario:
+        # [T o G][10 dígitos]
+        # [TMLG, NPRO o REEM][6 dígitos]
+        if re.match(r'^[TG]\d{10}$', partes[0]) or re.match(r'^(TMLG|NPRO|REEM)\d{6}$', partes[0]):
+            return '#', partes[0], '#'
+        # si no, este será el nombre de la transferencia         
+        else:
+            return '#', '#', partes[0]
+    else:
+        return '#', '#', '#'
+    
 def get_encoding(uploaded_file):
     content = uploaded_file.read()               # bytes
     # Detectar la codificación del archivo
@@ -37,28 +63,3 @@ def excel_col_letter(col_idx):
         letters = chr(col_idx % 26 + 65) + letters
         col_idx = col_idx // 26 - 1
     return letters
-
-def separar_texto_cabecera(texto):
-    partes = texto.split(SEPARADOR)
-    if len(partes) >= 3:
-        return partes[0], partes[1], partes[2]
-    elif len(partes) == 2:
-        return partes[0],  partes[1], '#'
-    elif len(partes) == 1:
-        # buscamos el patrón [4 dígitos]_[T o G][10 dígitos], donde los 4 dígitos son el tipo de movimiento
-        # y los 10 dígitos son la clave de movimiento bancario
-        match = re.match(r'(\d{4})_([TG]\d{10})', partes[0])
-        if match:
-            tipo_movimiento = match.group(1)
-            clave_mov_bancario = match.group(2)
-            return tipo_movimiento, clave_mov_bancario, '#' 
-        # verificamos que se pueda extraer algún formato de clave de movimiento bancario:
-        # [T o G][10 dígitos]
-        # [TMLG, NPRO o REEM][6 dígitos]
-        if re.match(r'^[TG]\d{10}$', partes[0]) or re.match(r'^(TMLG|NPRO|REEM)\d{6}$', partes[0]):
-            return '#', partes[0], '#'
-        # si no, este será el nombre de la transferencia         
-        else:
-            return '#', '#', partes[0]
-    else:
-        return '#', '#', '#'
