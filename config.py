@@ -225,7 +225,7 @@ SAP_COLS_ENG_SPAN = {
     'Source Document External Reference': 'Referencia externa de documento original',
     'Journal Entry Item Text': 'Texto de posición de asiento contable',
     'Transaction Currency': 'Moneda de transacción',
-    'Cleareing Journal Entry': 'Asiento contable de compensación',
+    'Clearing Journal Entry': 'Asiento contable de compensación',
     'Source Document ID.1':'ID de documento original.1',
     'Reference Source Document ID': 'ID de documento original de referencia',
     'Reversal Journal Entry': 'Asiento contable de anulación',
