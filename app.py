@@ -39,7 +39,7 @@ uploaded_files['sap'] = st.file_uploader(
     accept_multiple_files=False
 )
 if uploaded_files['sap']:
-    sap_caja = pd.read_csv(uploaded_files['sap'], encoding='utf-8', header=12)
+    sap_caja = pd.read_csv(uploaded_files['sap'], encoding='utf-8', header=9)
     st.write(sap_caja.head())
     st.markdown('Procesado correctamente.')
 
