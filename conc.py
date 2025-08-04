@@ -1,27 +1,17 @@
 import pandas as pd
 import numpy as np
 import re
-from config import DATE_FORMAT, COL_CLAVE_MOV, CATALOGO_BANCOS,CATALOGO_CUENTAS,CATALOGO_BANCOS_EDO_CTA,CATALOGO_CUENTAS_EDO_CTA, CUENTA_A_MONEDA
+from config import DATE_FORMAT, COL_CLAVE_MOV, CATALOGO_BANCOS,CATALOGO_CUENTAS,CATALOGO_BANCOS_EDO_CTA,CATALOGO_CUENTAS_EDO_CTA, CUENTA_A_MONEDA, SAP_LANGUAGE, SAP_VALUES_ENG_SPAN, SAP_COLS_ENG_SPAN
+from datetime import datetime,date
 from utils import separar_texto_cabecera
 
-def conciliar(edo_cta_cves, sap_caja, periodo):
+def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame, periodo: tuple[date,date]):
     """Formateo Reporte Caja SAP"""
-
-    for x in ['debe','haber']:
-        for moneda in ['moneda de empresa', 'moneda de transacción']:
-            sap_caja[f'Importe en {x} en {moneda}'] = pd.to_numeric(sap_caja[f'Importe en {x} en {moneda}'], errors='coerce').fillna(0)
-    # Fecha de contabilización a datetime
-    sap_caja['Fecha de contabilización'] = pd.to_datetime(sap_caja['Fecha de contabilización'],errors='raise', format=DATE_FORMAT)
-    # hay valores no convertibles a datetime?
-    if sap_caja['Fecha de contabilización'].isnull().sum() > 0:
-        print(f"Hay {sap_caja['Fecha de contabilización'].isnull().sum()} valores no convertibles a datetime en 'Fecha de contabilización'")
-    # cambiamos Asiento contable y Mi banco a string
-    sap_caja['Asiento contable'] = sap_caja['Asiento contable'].astype(str).str.replace(r'\.0$', '', regex=True)
-    sap_caja['Mi banco'] = sap_caja['Mi banco'].astype(str).str.replace(r'\.0','',regex=True)
-    # cambiamos Cuenta de mayor a string
-    sap_caja['Cuenta de mayor'] = sap_caja['Cuenta de mayor'].astype(str)
-    # cambiamos Mi banco a string
-    sap_caja['Mi banco'] = sap_caja['Mi banco'].astype(str)
+    if SAP_LANGUAGE == 'en':
+        # traducimos los valores del reporte de SAP al español
+        sap_caja.replace(SAP_VALUES_ENG_SPAN, inplace=True)
+        # renombramos las columnas del reporte de SAP
+        sap_caja.rename(columns=SAP_COLS_ENG_SPAN, inplace=True)
 
     # extraemos todos los asientos contables de anulación distintos de #
     asientos_anulacion = sap_caja[sap_caja['Asiento contable de anulación'] != '#']["Asiento contable de anulación"].unique()
@@ -42,6 +32,30 @@ def conciliar(edo_cta_cves, sap_caja, periodo):
 
     print(f"Número de filas en sap_caja: {len(sap_caja)}")
     print(f'Tipos de asiento contable únicos en sap_caja: {sap_caja["Tipo de asiento contable"].unique()}')
+
+    for x in ['debe','haber']:
+        for moneda in ['moneda de empresa', 'moneda de transacción']:
+            # convertimos las columnas de importe a numéricas, considerando que se recibe en formato "\d{1,3}(,\d{3})*(\.\d{2})? [A-Za-z]{3}"
+            sap_caja[f'Importe en {x} en {moneda}'] = sap_caja[f'Importe en {x} en {moneda}'].astype(str).str.replace(r"[\$A-Za-z,\s]","",regex=True)
+            sap_caja[f'Importe en {x} en {moneda}'] = pd.to_numeric(sap_caja[f'Importe en {x} en {moneda}'], errors='coerce').fillna(0)
+
+    # Fecha de contabilización a datetime
+    sap_caja['Fecha de contabilización'] = pd.to_datetime(sap_caja['Fecha de contabilización'],errors='raise', format=DATE_FORMAT)
+    # hay valores no convertibles a datetime?
+    if sap_caja['Fecha de contabilización'].isnull().sum() > 0:
+        print(f"Hay {sap_caja['Fecha de contabilización'].isnull().sum()} valores no convertibles a datetime en 'Fecha de contabilización'")
+    # dejamos solo los movimientos que están dentro del periodo a conciliar
+    sap_caja = sap_caja[(sap_caja['Fecha de contabilización'] >= periodo[0]) & (sap_caja['Fecha de contabilización'] <= periodo[1])]
+
+    # cambiamos Asiento contable y Mi banco a string
+    sap_caja['Asiento contable'] = sap_caja['Asiento contable'].astype(str).str.replace(r'\.0$', '', regex=True)
+    sap_caja['Mi banco'] = sap_caja['Mi banco'].astype(str).str.replace(r'\.0','',regex=True)
+    # cambiamos Cuenta de mayor a string
+    sap_caja['Cuenta de mayor'] = sap_caja['Cuenta de mayor'].astype(str)
+    # cambiamos Mi banco a string
+    sap_caja['Mi banco'] = sap_caja['Mi banco'].astype(str)
+
+
 
     # agregamos columna que indica si es un cargo o un abono
     sap_caja['Cargo/Abono'] = np.where(

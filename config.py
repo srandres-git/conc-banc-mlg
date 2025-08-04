@@ -100,10 +100,10 @@ RENAME_COLUMNS = {
     'Unnamed: 1': 'Nombre cuenta de mayor',
     'Mi banco': 'ID Banco',
     'Unnamed: 3': 'Banco',
-    'ID de cuenta bancaria/gastos menores': 'ID de cuenta',
+    'ID de cuenta bancaria/gastos menores': 'Cuenta',
     'Fecha de contabilización': 'Fecha',
-    'ID de cliente/proveedor de contrapartida': 'ID de cliente/proveedor',
-    'Unnamed: 12': 'Cliente/Proveedor',
+    'ID de cliente/proveedor de contrapartida': 'ID Cliente/Proveedor',
+    'Unnamed: 13': 'Cliente/Proveedor',
     'Importe en debe en moneda de empresa': 'Debe MXN',
     'Importe en haber en moneda de empresa': 'Haber MXN',
     'Importe en debe en moneda de transacción': 'Debe',
@@ -123,7 +123,7 @@ COLS_TO_KEEP_SAP = [
     'Texto de cabecera',
     'ID de documento original',
     'ID de cliente/proveedor de contrapartida',
-    'Unnamed: 12', 
+    'Unnamed: 13', 
     'Nombre Adicional II',
     'ID de documento original de referencia',
     'Moneda de transacción',
@@ -185,7 +185,7 @@ COLS_TO_KEEP_EDO_CTA = [
     'Texto de cabecera',
     'ID de documento original',
     'ID de cliente/proveedor de contrapartida',
-    'Unnamed: 12', 
+    'Unnamed: 13', 
     'Nombre Adicional II',
     'ID de documento original de referencia',
     'Moneda de transacción',
@@ -208,3 +208,39 @@ COLS_TO_KEEP_EDO_CTA = [
     'Diferencia fechas (días)',
     'Conciliado por',
 ]
+# Diccionario de traducción de columnas del reporte de SAP al español
+SAP_COLS_ENG_SPAN = {
+    'G/L Account': 'Cuenta de mayor',
+    'My Bank': 'Mi banco',
+    'Cash Location Type': 'Tipo de ubicación de caja',
+    'Bank Account/Petty Cash ID': 'ID de cuenta bancaria/gastos menores',
+    'Posting Date': 'Fecha de contabilización',
+    'Journal Entry Type': 'Tipo de asiento contable',
+    'Journal Entry': 'Asiento contable',
+    'External Reference ID': 'ID de referencia externa',
+    'Header Text': 'Texto de cabecera',
+    'Source Document ID': 'ID de documento original',
+    'Offset Customer/Supplier ID': 'ID de cliente/proveedor de contrapartida',
+    'Aditional Name II': 'Nombre Adicional II',
+    'Source Document External Reference': 'Referencia externa de documento original',
+    'Journal Entry Item Text': 'Texto de posición de asiento contable',
+    'Transaction Currency': 'Moneda de transacción',
+    'Cleareing Journal Entry': 'Asiento contable de compensación',
+    'Source Document ID.1':'ID de documento original.1',
+    'Reference Source Document ID': 'ID de documento original de referencia',
+    'Reversal Journal Entry': 'Asiento contable de anulación',
+    'Debit Amount Company Currency': 'Importe en debe en moneda de empresa',
+    'Credit Amount Company Currency': 'Importe en haber en moneda de empresa',
+    'Debit Amount Transaction Currency': 'Importe en debe en moneda de transacción',
+    'Credit Amount Transaction Currency': 'Importe en haber en moneda de transacción',
+}
+# Diccionario de traducción de valores del reporte de SAP al español
+SAP_VALUES_ENG_SPAN = {
+    'Journal Entry Type': {
+        'Cash Disbursement': 'Desembolso',
+        'Cash Receipt': 'Cobro',
+        'Cash Transfer': 'Transferencia de fondos',
+    }
+}
+# Idioma en el que se encuentra el reporte de SAP
+SAP_LANGUAGE = 'en'  # 'en' para inglés, 'es' para español

@@ -30,7 +30,7 @@ def separar_texto_cabecera(texto):
     else:
         return '#', '#', '#'
     
-def get_current_month_range()->tuple:
+def get_current_month_range()->tuple[date, date]:
     """Obtiene las fechas del primer y último día del mes actual"""
     # Current date
     today = date.today()
