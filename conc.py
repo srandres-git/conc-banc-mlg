@@ -70,8 +70,7 @@ def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.Dat
         sap_caja['Importe en haber en moneda de transacción']
     )
     # conteo de cargos y abonos
-    conteo_cargos_abonos = sap_caja['Cargo/Abono'].value_counts()
-    print(f"Cargos: {conteo_cargos_abonos['CARGO']}, Abonos: {conteo_cargos_abonos['ABONO']}")
+    print(f"Conteo de cargos y abonos:\n{sap_caja['Cargo/Abono'].value_counts()}")
 
     # Extracción de clave, tipo de movimiento y texto de la transferencia a partir del texto de cabecera
 
