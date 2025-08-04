@@ -35,11 +35,12 @@ for banco, cuentas in CUENTAS.items():
 st.header("Arrastra el reporte de caja de SAP")
 uploaded_files['sap'] = st.file_uploader(
     'Caja Partidas Individuales',
-    type=['csv', 'xlsx'],
+    type=['csv'],
     accept_multiple_files=False
 )
 if uploaded_files['sap']:
-    sap_caja = pd.read_excel(uploaded_files['sap'])
+    sap_caja = pd.read_csv(uploaded_files['sap'], encoding='utf-8', header=12)
+    st.write(sap_caja.head())
     st.markdown('Procesado correctamente.')
 
 # Agregamos selector de periodo a conciliar
@@ -47,4 +48,3 @@ periodo = st.date_input('Periodo a conciliar',get_current_month_range(),format='
 # Validamos que se haya ingresado al menos un estado de cuenta, el reporte de SAP y el periodo a conciliar
 if len(dfs_edo_cta)>=1 and uploaded_files['sap'] and periodo:
     st.button('Conciliar',on_click=conciliar,args=[pd.concat(dfs_edo_cta.values()), sap_caja, periodo])
-
