@@ -160,6 +160,7 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
         edo_cta_cves['CARGO'],
         edo_cta_cves['ABONO']
     )
+    return edo_cta_cves
 
 
 def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):   
