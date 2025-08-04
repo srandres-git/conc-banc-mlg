@@ -41,11 +41,11 @@ def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.Dat
 
     # Fecha de contabilización a datetime
     sap_caja['Fecha de contabilización'] = pd.to_datetime(sap_caja['Fecha de contabilización'],errors='raise', format=DATE_FORMAT)
+    # dejamos solo los movimientos que están dentro del periodo a conciliar
+    sap_caja = sap_caja[(sap_caja['Fecha de contabilización'].dt.date >= periodo[0]) & (sap_caja['Fecha de contabilización'].dt.date <= periodo[1])]
     # hay valores no convertibles a datetime?
     if sap_caja['Fecha de contabilización'].isnull().sum() > 0:
-        print(f"Hay {sap_caja['Fecha de contabilización'].isnull().sum()} valores no convertibles a datetime en 'Fecha de contabilización'")
-    # dejamos solo los movimientos que están dentro del periodo a conciliar
-    sap_caja = sap_caja[(sap_caja['Fecha de contabilización'] >= periodo[0]) & (sap_caja['Fecha de contabilización'] <= periodo[1])]
+        print(f"Hay {sap_caja['Fecha de contabilización'].isnull().sum()} valores no convertibles a datetime en 'Fecha de contabilización'")    
 
     # cambiamos Asiento contable y Mi banco a string
     sap_caja['Asiento contable'] = sap_caja['Asiento contable'].astype(str).str.replace(r'\.0$', '', regex=True)
@@ -142,7 +142,7 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
     # las fechas deben ser convertidas a datetime y resolución solo al día
     edo_cta_cves['FECHA'] = pd.to_datetime(edo_cta_cves['FECHA'], errors='coerce').dt.normalize()
     # filtramos por el periodo a conciliar
-    edo_cta_cves = edo_cta_cves[(edo_cta_cves['FECHA'] >= periodo[0]) & (edo_cta_cves['FECHA'] <= periodo[1])]
+    edo_cta_cves = edo_cta_cves[(edo_cta_cves['FECHA'].dt.date >= periodo[0]) & (edo_cta_cves['FECHA'].dt.date <= periodo[1])]
     # hay valores no convertibles a datetime?
     if edo_cta_cves['FECHA'].isnull().sum() > 0:
         print(f"Hay {edo_cta_cves['FECHA'].isnull().sum()} valores no convertibles a datetime en 'FECHA'")
