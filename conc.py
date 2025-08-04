@@ -5,7 +5,7 @@ from config import DATE_FORMAT, COL_CLAVE_MOV, CATALOGO_BANCOS,CATALOGO_CUENTAS,
 from datetime import datetime,date
 from utils import separar_texto_cabecera
 
-def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame, periodo: tuple[date,date]):
+def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.DataFrame:
     """Formateo Reporte Caja SAP"""
     if SAP_LANGUAGE == 'en':
         # traducimos los valores del reporte de SAP al español
@@ -121,11 +121,11 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame, periodo: tuple
     # en su lugar concatenamos los de sap_caja_grouped
     sap_caja.drop(sap_caja[sap_caja['Clave de movimiento bancario'].isin(duplicated_keys)].index, inplace=True)
     sap_caja = pd.concat([sap_caja, sap_caja_grouped], ignore_index=True)
-    sap_caja[sap_caja['Asiento contable'].str.contains(',')]
+    print(sap_caja[sap_caja['Asiento contable'].str.contains(',')])
+    return sap_caja
 
-
+def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.DataFrame:
     """Formateo estados de cuenta"""
-
     edo_cta_cves['CLAVE'] = edo_cta_cves['CLAVE'].astype(str).str.strip()
     # eliminamos los ceros a la izquierda de la clave
     edo_cta_cves['CLAVE'] = edo_cta_cves['CLAVE'].apply(lambda x: re.sub(r'^[0]+', '', x) if isinstance(x, str) else x)
@@ -141,6 +141,8 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame, periodo: tuple
 
     # las fechas deben ser convertidas a datetime y resolución solo al día
     edo_cta_cves['FECHA'] = pd.to_datetime(edo_cta_cves['FECHA'], errors='coerce').dt.normalize()
+    # filtramos por el periodo a conciliar
+    edo_cta_cves = edo_cta_cves[(edo_cta_cves['FECHA'] >= periodo[0]) & (edo_cta_cves['FECHA'] <= periodo[1])]
     # hay valores no convertibles a datetime?
     if edo_cta_cves['FECHA'].isnull().sum() > 0:
         print(f"Hay {edo_cta_cves['FECHA'].isnull().sum()} valores no convertibles a datetime en 'FECHA'")
@@ -160,6 +162,8 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame, periodo: tuple
         edo_cta_cves['ABONO']
     )
 
+
+def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):   
     """Conciliación Bancos x SAP"""
     DIFF_RAN = 1
     conciliados = []
@@ -365,3 +369,5 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame, periodo: tuple
     # verificamos el número de filas
     print(f"Número total de filas en la conciliación: {len(conciliacion_sap_vs_edo)}")
     print(f"Número de filas en SAP: {len(sap_caja)}")
+
+    return conciliacion_edo_cta_sap, conciliacion_sap_vs_edo

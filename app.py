@@ -3,7 +3,7 @@ import pandas as pd
 from config import CUENTAS, TYPES_EDO_CTA
 from cves import asign_cve
 from utils import get_current_month_range
-from conc import conciliar
+from conc import conciliar, format_sap_caja, format_edo_cta
 
 st.title("Conciliación bancaria")
 
@@ -38,13 +38,16 @@ uploaded_files['sap'] = st.file_uploader(
     type=['csv'],
     accept_multiple_files=False
 )
-if uploaded_files['sap']:
-    sap_caja = pd.read_csv(uploaded_files['sap'], encoding='utf-8', header=9)
-    st.write(sap_caja.head())
-    st.markdown('Procesado correctamente.')
 
 # Agregamos selector de periodo a conciliar
 periodo = st.date_input('Periodo a conciliar',get_current_month_range(),format='DD.MM.YYYY')
+
+if uploaded_files['sap']:
+    sap_caja = pd.read_csv(uploaded_files['sap'], encoding='utf-8', header=9)
+    sap_caja = format_sap_caja(sap_caja, periodo)
+    st.write(sap_caja.head())
+    st.markdown('Reporte SAP procesado correctamente.')
+
 # Validamos que se haya ingresado al menos un estado de cuenta, el reporte de SAP y el periodo a conciliar
 if len(dfs_edo_cta)>=1 and uploaded_files['sap'] and periodo:
-    st.button('Conciliar',on_click=conciliar,args=[pd.concat(dfs_edo_cta.values()), sap_caja, periodo])
+    st.button('Conciliar',on_click=conciliar,args=[format_edo_cta(pd.concat(dfs_edo_cta.values()), periodo), sap_caja, periodo])
