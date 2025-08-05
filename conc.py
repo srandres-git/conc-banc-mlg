@@ -4,6 +4,7 @@ import re
 from config import DATE_FORMAT, COL_CLAVE_MOV, CATALOGO_BANCOS,CATALOGO_CUENTAS,CATALOGO_BANCOS_EDO_CTA,CATALOGO_CUENTAS_EDO_CTA, CUENTA_A_MONEDA, SAP_LANGUAGE, SAP_VALUES_ENG_SPAN, SAP_COLS_ENG_SPAN
 from datetime import datetime,date
 from utils import separar_texto_cabecera
+import streamlit as st
 
 def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.DataFrame:
     """Formateo Reporte Caja SAP"""
@@ -370,4 +371,5 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):
     print(f"Número total de filas en la conciliación: {len(conciliacion_sap_vs_edo)}")
     print(f"Número de filas en SAP: {len(sap_caja)}")
 
-    return conciliacion_edo_cta_sap, conciliacion_sap_vs_edo
+    st.write(conciliacion_edo_cta_sap.head())
+    st.write(conciliacion_sap_vs_edo.head())
