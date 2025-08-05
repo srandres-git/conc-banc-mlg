@@ -2,9 +2,11 @@ import pandas as pd
 import numpy as np
 import re
 from config import DATE_FORMAT, COL_CLAVE_MOV, CATALOGO_BANCOS,CATALOGO_CUENTAS,CATALOGO_BANCOS_EDO_CTA,CATALOGO_CUENTAS_EDO_CTA, CUENTA_A_MONEDA, SAP_LANGUAGE, SAP_VALUES_ENG_SPAN, SAP_COLS_ENG_SPAN
-from datetime import datetime,date
+from datetime import date
 from utils import separar_texto_cabecera
+from export import export_sap_reconciliation, export_bank_reconciliation
 import streamlit as st
+import io
 
 def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.DataFrame:
     """Formateo Reporte Caja SAP"""
@@ -173,7 +175,6 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):
         sap_caja_group = sap_caja[(sap_caja['Unnamed: 3'] == CATALOGO_BANCOS_EDO_CTA[banco]) &
                                 (sap_caja['ID de cuenta bancaria/gastos menores'] == CATALOGO_CUENTAS_EDO_CTA[banco][cuenta]) &
                                 (sap_caja['Cargo/Abono'] == tipo)].copy()
-        print(f"Banco: {banco}, Cuenta: {cuenta}, Tipo: {tipo}")
         edo_cta_group = edo_cta_group.copy()
 
         # Paso 2: Merge de los dataframes por clave
@@ -199,13 +200,11 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):
         ]
         # marcamos estos movimientos como conciliados por clave
         closest_match['Conciliado por'] = 'Clave'
-        print(closest_match.index.size)
         # agregamos los movimientos conciliados a la lista
         conciliados.append(closest_match)
         # determinamos los movimientos que no se han conciliado por clave (auquellos de edo_cta_group cuyos datos no están en closest_match)
         no_conciliados = merged[merged['_merge'] == 'left_only'].copy()    
         no_conciliados['Conciliado por'] = 'No revisado'
-        print(no_conciliados['_merge'].value_counts())  
         # determinamos los movimientos que no se han  conciliado del lado de SAP
         ids_conc = closest_match['Clave de movimiento bancario'].dropna().unique()
         no_conciliados_sap = sap_caja_group[~sap_caja_group['Clave de movimiento bancario'].isin(ids_conc)]
@@ -243,7 +242,6 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):
 
         # agregamos los movimientos no conciliados a la lista de conciliados
         conciliados.append(no_conciliados[no_conciliados['Conciliado por'] == 'No conciliado'])
-        print('Vals de no conciliados:',no_conciliados.value_counts('Conciliado por'))
         
     # Paso 5: Conciliación final
     conciliacion_edo_cta_sap = pd.concat(conciliados, ignore_index=True)
@@ -272,9 +270,18 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):
     # verificar que el número de filas sea el esperado
     print(f"Número total de filas en la conciliación: {len(conciliacion_edo_cta_sap)}")
     print(f"Número de filas en estados de cuenta: {len(edo_cta_cves)}")
-    conciliacion_edo_cta_sap.groupby('CARGO/ABONO')['Conciliado por'].value_counts()
 
-
+    # exportamos la conciliación a Excel
+    output_bancos = io.BytesIO()
+    export_bank_reconciliation(conciliacion_edo_cta_sap, output_bancos, edo_cta_cves.columns.to_list())
+    output_bancos.seek(0)
+    with st.container(key='conc_bancos'):
+        st.download_button(
+            label='⬇ Conciliación Bancos vs SAP',
+            data=output_bancos,
+            file_name=f'conciliación_bancos_sap.xlsx',
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
 
     """Conciliación SAP x Bancos"""
 
@@ -294,7 +301,6 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):
         except KeyError:
             print(f"Error: la cuenta {cuenta_sap} no está en el catálogo de cuentas de estados de cuenta para el banco {bank_sap}")
             continue
-        print(f"Banco: {banco_edo}, Cuenta: {cuenta_edo}, Tipo: {tipo}")
         sap_group = sap_group.copy()
 
         # Filtramos el DataFrame de edo_cta para emparejar solo dentro del mismo banco, cuenta y tipo
@@ -371,5 +377,14 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):
     print(f"Número total de filas en la conciliación: {len(conciliacion_sap_vs_edo)}")
     print(f"Número de filas en SAP: {len(sap_caja)}")
 
-    st.write(conciliacion_edo_cta_sap.head())
-    st.write(conciliacion_sap_vs_edo.head())
+    # exportamos la conciliación a Excel
+    output_sap = io.BytesIO()
+    export_sap_reconciliation(conciliacion_sap_vs_edo, output_sap, sap_caja.columns.to_list())
+    output_sap.seek(0)
+    with st.container(key='conc_sap'):
+        st.download_button(
+            label='⬇ Conciliación SAP vs Bancos',
+            data=output_sap,
+            file_name=f'conciliación_sap_bancos.xlsx',
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )

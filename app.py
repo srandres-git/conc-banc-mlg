@@ -51,3 +51,6 @@ if uploaded_files['sap']:
 # Validamos que se haya ingresado al menos un estado de cuenta, el reporte de SAP y el periodo a conciliar
 if len(dfs_edo_cta)>=1 and uploaded_files['sap'] and periodo:
     conciliacion = st.button('Conciliar',on_click=conciliar,args=[format_edo_cta(pd.concat(dfs_edo_cta.values()), periodo), sap_caja,])
+
+st.container(key='conc_bancos')
+st.container(key='conc_sap')
