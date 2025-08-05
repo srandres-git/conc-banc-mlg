@@ -47,9 +47,9 @@ if uploaded_files['sap']:
     sap_caja = format_sap_caja(sap_caja, periodo)
     st.write(sap_caja.head())
     st.markdown('Reporte SAP procesado correctamente.')
-conc_button_cont = st.container(key='conc_button')
-banc_cont = st.container(key='conc_bancos')
-sap_cont = st.container(key='conc_sap')
+st.session_state['conc_button'] = st.container(key='conc_button')
+st.session_state['conc_bancos'] = st.container(key='conc_bancos')
+st.session_state['conc_sap'] = st.container(key='conc_sap')
 # Validamos que se haya ingresado al menos un estado de cuenta, el reporte de SAP y el periodo a conciliar
 if len(dfs_edo_cta)>=1 and uploaded_files['sap'] and periodo:
     with st.session_state['conc_button']:
