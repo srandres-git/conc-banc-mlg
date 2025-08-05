@@ -165,6 +165,7 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
     )
     return edo_cta_cves
 
+conciliacion_edo_cta_sap = pd.DataFrame()
 
 def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):   
     """Conciliación Bancos x SAP"""
