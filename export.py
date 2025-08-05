@@ -221,7 +221,7 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
     df_diff_fecha_sap = df_full_sap[df_full_sap['Diferencia fechas (días)'] > 0]
 
     # 6. Resumen por cuenta/cargo-abono
-    resumen_sap = df_full_sap.groupby(['Banco', 'ID de cuenta', 'Cargo/Abono', 'Conciliado por']).agg(
+    resumen_sap = df_full_sap.groupby(['Banco', 'Cuenta', 'Cargo/Abono', 'Conciliado por']).agg(
         movimientos=('Clave de movimiento bancario', 'count'),
         importe_total=('Importe', 'sum')
     ).reset_index()
