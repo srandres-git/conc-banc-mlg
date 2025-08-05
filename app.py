@@ -45,8 +45,7 @@ periodo = st.date_input('Periodo a conciliar',get_current_month_range(),format='
 if uploaded_files['sap']:
     sap_caja = pd.read_csv(uploaded_files['sap'], encoding='utf-8', header=9)
     sap_caja = format_sap_caja(sap_caja, periodo)
-    st.write(sap_caja.head())
-    st.markdown('Reporte SAP procesado correctamente.')
+    st.markdown(f'Reporte SAP procesado correctamente: {len(sap_caja)} filas.')
 st.session_state['conc_button'] = st.container(key='conc_button')
 st.session_state['conc_bancos'] = st.container(key='conc_bancos')
 st.session_state['conc_sap'] = st.container(key='conc_sap')
