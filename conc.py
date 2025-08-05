@@ -274,7 +274,7 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):
     output_bancos = io.BytesIO()
     export_bank_reconciliation(conciliacion_edo_cta_sap, output_bancos, edo_cta_cves.columns.to_list())
     output_bancos.seek(0)
-    with st.container(key='conc_bancos'):
+    with st.session_state['conc_bancos']:
         st.download_button(
             label='⬇ Conciliación Bancos vs SAP',
             data=output_bancos,
@@ -380,7 +380,7 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):
     output_sap = io.BytesIO()
     export_sap_reconciliation(conciliacion_sap_vs_edo, output_sap, sap_caja.columns.to_list())
     output_sap.seek(0)
-    with st.container(key='conc_sap'):
+    with st.session_state['conc_sap']:
         st.download_button(
             label='⬇ Conciliación SAP vs Bancos',
             data=output_sap,

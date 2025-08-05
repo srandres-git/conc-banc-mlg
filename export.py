@@ -184,7 +184,7 @@ def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_fi
                     worksheet.set_column(col_num, col_num, col_len)
 
     # mostramos el resumen en pantalla
-    with st.container(key='conc_bancos'):
+    with st.session_state['conc_bancos']:
         st.markdown("### Resumen de conciliación Bancos vs SAP")
         st.write(resumen)
 
@@ -314,6 +314,6 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
                 else:
                     worksheet.set_column(col_num, col_num, col_len)
     # mostramos el resumen en pantalla
-    with st.container(key='conc_sap'):
+    with st.session_state['conc_sap']:
         st.markdown("### Resumen de conciliación SAP vs Bancos")
         st.write(resumen_sap)
