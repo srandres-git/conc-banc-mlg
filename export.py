@@ -56,7 +56,7 @@ def export_bank(df: pd.DataFrame, output_file, bank, account):
             else:
                 worksheet.set_column(col_num, col_num, col_len)
 
-def export_bank_reconciliation(df: pd.DataFrame, output_file: str,edo_cta_cols: list[str]):
+def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_file: str,edo_cta_cols: list[str]):
     """
     Exporta el DataFrame de conciliación bancaria (bancos vs SAP) a un archivo Excel.
     """
@@ -189,7 +189,7 @@ def export_bank_reconciliation(df: pd.DataFrame, output_file: str,edo_cta_cols: 
         st.write(resumen)
 
 
-def export_sap_reconciliation(df: pd.DataFrame, output_file: str, sap_cols: list[str]):
+def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file: str, sap_cols: list[str]):
     """
     Exporta el DataFrame de conciliación bancaria (SAP vs bancos) a un archivo Excel.
     """
