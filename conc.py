@@ -244,6 +244,7 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):
         conciliados.append(no_conciliados[no_conciliados['Conciliado por'] == 'No conciliado'])
         
     # Paso 5: Conciliación final
+    global conciliacion_edo_cta_sap
     conciliacion_edo_cta_sap = pd.concat(conciliados, ignore_index=True)
     # volvemos a calcular las diferencias de importes y fechas
     conciliacion_edo_cta_sap['Diferencia importes'] = conciliacion_edo_cta_sap['IMPORTE']- conciliacion_edo_cta_sap['Importe']
