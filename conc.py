@@ -278,7 +278,7 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[
         st.download_button(
             label='⬇ Conciliación Bancos vs SAP',
             data=output_bancos,
-            file_name=get_export_filename('conc_bancos_sap', periodo,),
+            file_name=get_export_filename('conc_bancos_sap', periodo),
             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
 
@@ -384,6 +384,6 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[
         st.download_button(
             label='⬇ Conciliación SAP vs Bancos',
             data=output_sap,
-            file_name= get_export_filename('conc_sap_bancos', periodo,),
+            file_name= get_export_filename('conc_sap_bancos', periodo),
             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
