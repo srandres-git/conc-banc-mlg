@@ -85,8 +85,8 @@ def get_month(period: tuple[date, date]) -> str:
     else:
         return f"{start_date.month:02d}{start_date.year % 100:02d}-{end_date.month:02d}{end_date.year % 100:02d}"
     
-def get_export_filename(prefix: str, period: tuple[date, date]) -> str:
+def get_export_filename(prefix: str, period: tuple[date, date], extension='xlsx') -> str:
     """Genera un nombre de archivo para exportar, incluyendo el prefijo, el periodo en formato 'MMYY' y la fecha de hoy en formato 'DDMMYY'"""""
     month = get_month(period)
     today = date.today()
-    return f"{prefix}_{month}_{today.strftime('%d%m%y')}.xlsx"
+    return f"{prefix}_{month}_{today.strftime('%d%m%y')}.{extension}"
