@@ -75,3 +75,18 @@ def excel_col_letter(col_idx):
         letters = chr(col_idx % 26 + 65) + letters
         col_idx = col_idx // 26 - 1
     return letters
+
+def get_month(period: tuple[date, date]) -> str:
+    """Obtiene el mes en formato 'MMYY' a partir de un periodo si el periodo abarca máximo un mes,
+    de lo contrario devuelve 'MMYY-MMYY'"""
+    start_date, end_date = period
+    if start_date.month == end_date.month and start_date.year == end_date.year:
+        return f"{start_date.month:02d}{start_date.year % 100:02d}"    
+    else:
+        return f"{start_date.month:02d}{start_date.year % 100:02d}-{end_date.month:02d}{end_date.year % 100:02d}"
+    
+def get_export_filename(prefix: str, period: tuple[date, date]) -> str:
+    """Genera un nombre de archivo para exportar, incluyendo el prefijo, el periodo en formato 'MMYY' y la fecha de hoy en formato 'DDMMYY'"""""
+    month = get_month(period)
+    today = date.today()
+    return f"{prefix}_{month}_{today.strftime('%d%m%y')}.xlsx"

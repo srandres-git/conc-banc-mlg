@@ -3,7 +3,7 @@ import numpy as np
 import re
 from config import DATE_FORMAT, COL_CLAVE_MOV, CATALOGO_BANCOS,CATALOGO_CUENTAS,CATALOGO_BANCOS_EDO_CTA,CATALOGO_CUENTAS_EDO_CTA, CUENTA_A_MONEDA, SAP_LANGUAGE, SAP_VALUES_ENG_SPAN, SAP_COLS_ENG_SPAN
 from datetime import date
-from utils import separar_texto_cabecera
+from utils import separar_texto_cabecera, get_month, get_export_filename
 from export import export_sap_reconciliation, export_bank_reconciliation
 import streamlit as st
 import io
@@ -165,7 +165,7 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
     )
     return edo_cta_cves
 
-def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):   
+def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[date,date]) -> None:   
     """Conciliación Bancos x SAP"""
     DIFF_RAN = 1
     conciliados = []
@@ -278,7 +278,7 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):
         st.download_button(
             label='⬇ Conciliación Bancos vs SAP',
             data=output_bancos,
-            file_name=f'conciliación_bancos_sap.xlsx',
+            file_name=get_export_filename('conc_bancos_sap', periodo, 'xlsx'),
             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
 
@@ -384,6 +384,6 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,):
         st.download_button(
             label='⬇ Conciliación SAP vs Bancos',
             data=output_sap,
-            file_name=f'conciliación_sap_bancos.xlsx',
+            file_name=f'conc_sap_bancos_{get_month(periodo)}_{date.today()}.xlsx',
             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
