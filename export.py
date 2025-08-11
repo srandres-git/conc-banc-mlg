@@ -136,7 +136,7 @@ def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_fi
         # para columnas de SAP, usamos un formato con fondo azul claro
         header_format_sap = workbook.add_format({'bold': True, 'bg_color': '#D9E1F2', 'border': 2, 'font_color': '#000000'})
         # para encabezados de conciliación, usamos un formato con fondo amarillo claro
-        header_format_summary = workbook.add_format({'bold': True, 'bg_color': '#FFF2CC', 'border': 2, 'font_color': '#000000'})
+        header_format_summary = workbook.add_format({'bold': True, 'bg_color': '#FFF2CC', 'border': 2, 'font_color': '#000000', 'num_format': '#,##0'})
         # subtotales de suma
         subtotal_sum_format = workbook.add_format({
             'bold': True,
@@ -165,7 +165,10 @@ def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_fi
                     last_row = len(df) + 2
                     col_letter = excel_col_letter(col_num)
                     formula = f'=SUBTOTAL(9, {col_letter}3:{col_letter}{last_row})'
-                    worksheet.write_formula(0, col_num, formula,subtotal_sum_format)
+                    if 'movimientos' in value.lower():
+                        worksheet.write_formula(0, col_num, formula, header_format_summary)
+                    else:
+                        worksheet.write_formula(0, col_num, formula,subtotal_sum_format)
                 # subtotales (conteo) para movimientos
                 elif 'clave' in value.lower():
                     # La fórmula CONTAR va de la fila 3 (índice 2) hasta la última fila
@@ -269,7 +272,7 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
         # para columnas de SAP, usamos un formato con fondo azul claro
         header_format_sap = workbook.add_format({'bold': True, 'bg_color': '#D9E1F2', 'border': 2, 'font_color': '#000000'})
         # para encabezados de conciliación, usamos un formato con fondo amarillo claro
-        header_format_summary = workbook.add_format({'bold': True, 'bg_color': '#FFF2CC', 'border': 2, 'font_color': '#000000'})
+        header_format_summary = workbook.add_format({'bold': True, 'bg_color': '#FFF2CC', 'border': 2, 'font_color': '#000000', 'num_format': '#,##0'})
         # subtotales de suma
         subtotal_sum_format = workbook.add_format({
             'bold': True,
@@ -297,7 +300,10 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
                     last_row = len(df) + 2
                     col_letter = excel_col_letter(col_num)
                     formula = f'=SUBTOTAL(9, {col_letter}3:{col_letter}{last_row})'
-                    worksheet.write_formula(0, col_num, formula, subtotal_sum_format)
+                    if 'movimientos' in value.lower():
+                        worksheet.write_formula(0, col_num, formula, header_format_summary)
+                    else:
+                        worksheet.write_formula(0, col_num, formula, subtotal_sum_format)
                 # Subtotales (conteo) para movimientos
                 elif 'clave' in value.lower():
                     last_row = len(df) + 2
