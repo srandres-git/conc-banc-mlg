@@ -118,10 +118,14 @@ def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.Dat
                                         & (sap_caja_grouped['Cargo/Abono'] == 'CARGO')]
     # extraemos las claves de movimiento bancario que tienen más de un movimiento
     duplicated_keys = sap_caja_grouped['Clave de movimiento bancario']
-    sap_caja_grouped
-    # quitamos del original los que tienen clave de movimiento bancario duplicada
+    # extraemos los asientos contables que tienen más de un movimiento
+    duplicated_asientos = sap_caja_grouped['Asiento contable'].str.split(',').explode().unique()
+    # quitamos del original los que tienen clave de movimiento bancario duplicada y asiento contable duplicado
     # en su lugar concatenamos los de sap_caja_grouped
-    sap_caja.drop(sap_caja[sap_caja['Clave de movimiento bancario'].isin(duplicated_keys)].index, inplace=True)
+    sap_caja.drop(sap_caja[
+        (sap_caja['Clave de movimiento bancario'].isin(duplicated_keys))
+        & (sap_caja['Asiento contable'].isin(duplicated_asientos))
+    ].index, inplace=True)
     sap_caja = pd.concat([sap_caja, sap_caja_grouped], ignore_index=True)
     print(sap_caja[sap_caja['Asiento contable'].str.contains(',')])
     return sap_caja
@@ -148,6 +152,12 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
     # hay valores no convertibles a datetime?
     if edo_cta_cves['FECHA'].isnull().sum() > 0:
         print(f"Hay {edo_cta_cves['FECHA'].isnull().sum()} valores no convertibles a datetime en 'FECHA'")
+
+    # TODO:
+    # agrupamos los movimientos que tengan tipo de movimiento "COMISIÓN" e "IVA DE COMISIÓN"
+    # que estén en la misma cuenta y con la misma fecha
+    # separamos las columnas de edo_cta por tipo y función de agregación
+    
     # asignamos la moneda
     edo_cta_cves['MONEDA'] = edo_cta_cves.apply(lambda row: CUENTA_A_MONEDA.get((row['BANCO'], row['CUENTA']), 'NA'), axis=1)
 
