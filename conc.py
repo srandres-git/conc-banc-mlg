@@ -152,11 +152,6 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
     # hay valores no convertibles a datetime?
     if edo_cta_cves['FECHA'].isnull().sum() > 0:
         print(f"Hay {edo_cta_cves['FECHA'].isnull().sum()} valores no convertibles a datetime en 'FECHA'")
-
-    # TODO:
-    # agrupamos los movimientos que tengan tipo de movimiento "COMISIÓN" e "IVA DE COMISIÓN"
-    # que estén en la misma cuenta y con la misma fecha
-    # separamos las columnas de edo_cta por tipo y función de agregación
     
     # asignamos la moneda
     edo_cta_cves['MONEDA'] = edo_cta_cves.apply(lambda row: CUENTA_A_MONEDA.get((row['BANCO'], row['CUENTA']), 'NA'), axis=1)
@@ -173,6 +168,36 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
         edo_cta_cves['CARGO'],
         edo_cta_cves['ABONO']
     )
+
+    # agrupamos los movimientos que tengan tipo de movimiento "COMISIÓN" e "IVA DE COMISIÓN"
+    # que estén en la misma cuenta y con la misma fecha
+    # separamos las columnas de edo_cta por tipo y función de agregación
+    agg_edo_cta = {
+        col: 'sum' for col in edo_cta_cves.columns if col in ['CARGO', 'ABONO', 'IMPORTE']
+    }
+    agg_edo_cta['FECHA'] = 'first'  # preservamos la primera fecha, puesto que es la misma para todos los movimientos de la misma clave
+    # saldo tomamos el último saldo del periodo
+    agg_edo_cta['SALDO'] = 'last'
+    # el resto de columnas las concatenamos
+    agg_edo_cta.update({
+        col: lambda x: ', '.join([y if not y is None else '' for y in x.unique() ]) for col in edo_cta_cves.columns if col not in agg_edo_cta
+    })
+
+    # agrupamos por las columnas clave y aplicamos las funciones de agregación
+    edo_cta_grouped = edo_cta_cves[edo_cta_cves['TIPO MOVIMIENTO'].isin(['COMISIÓN', 'IVA DE COMISIÓN'])].groupby(
+        ['BANCO', 'CUENTA', 'FECHA',],
+        as_index=False
+    ).agg(agg_edo_cta)
+    # extraemos las claves de movimiento bancario que tienen más de un movimiento
+    duplicated_keys = edo_cta_grouped['CLAVE'].str.split(',').explode().unique()
+    # quitamos del original los que tienen clave de movimiento bancario duplicada y sean "COMISIÓN" o "IVA DE COMISIÓN"
+    # en su lugar concatenamos los de edo_cta_grouped
+    edo_cta_cves.drop(edo_cta_cves[
+        edo_cta_cves['CLAVE'].isin(duplicated_keys) &
+        edo_cta_cves['TIPO MOVIMIENTO'].isin(['COMISIÓN', 'IVA DE COMISIÓN'])
+    ].index, inplace=True)
+    edo_cta_cves = pd.concat([edo_cta_cves, edo_cta_grouped], ignore_index=True)
+
     return edo_cta_cves
 
 def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[date,date]) -> None:   
