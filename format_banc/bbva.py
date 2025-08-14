@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import re
-from utils import txt_to_df
+from concil.utils import txt_to_df
 
 def preprocess_bbva(uploaded_file)->pd.DataFrame:
     # para BBVA, se recibe como .txt

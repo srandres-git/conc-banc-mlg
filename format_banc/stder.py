@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 import numpy as np
-from utils import get_encoding
+from concil.utils import get_encoding
 
 def preprocess_stder(uploaded_file)->pd.DataFrame:
     # para Santander, se recibe como .csv

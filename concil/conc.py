@@ -1,10 +1,10 @@
 import pandas as pd
 import numpy as np
 import re
-from config import DATE_FORMAT, COL_CLAVE_MOV, CATALOGO_BANCOS,CATALOGO_CUENTAS,CATALOGO_BANCOS_EDO_CTA,CATALOGO_CUENTAS_EDO_CTA, CUENTA_A_MONEDA, SAP_LANGUAGE, SAP_VALUES_ENG_SPAN, SAP_COLS_ENG_SPAN
+from concil.config import DATE_FORMAT, COL_CLAVE_MOV, CATALOGO_BANCOS,CATALOGO_CUENTAS,CATALOGO_BANCOS_EDO_CTA,CATALOGO_CUENTAS_EDO_CTA, CUENTA_A_MONEDA, SAP_LANGUAGE, SAP_VALUES_ENG_SPAN, SAP_COLS_ENG_SPAN
 from datetime import date
-from utils import separar_texto_cabecera, get_month, get_export_filename
-from export import export_sap_reconciliation, export_bank_reconciliation
+from concil.utils import separar_texto_cabecera, get_month, get_export_filename
+from concil.export import export_sap_reconciliation, export_bank_reconciliation
 import streamlit as st
 import io
 
@@ -203,7 +203,7 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
 
     return edo_cta_cves
 
-def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[date,date]) -> None:   
+def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[date,date],output_bancos = io.BytesIO(),output_sap = io.BytesIO()) -> None:   
     """Conciliación Bancos x SAP"""
     DIFF_RAN = 1
     conciliados = []
@@ -309,16 +309,21 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[
     print(f"Número de filas en estados de cuenta: {len(edo_cta_cves)}")
 
     # exportamos la conciliación a Excel
-    output_bancos = io.BytesIO()
     export_bank_reconciliation(conciliacion_edo_cta_sap, output_bancos, edo_cta_cves.columns.to_list())
-    output_bancos.seek(0)
-    with st.session_state['conc_bancos']:
-        st.download_button(
-            label='⬇ Conciliación Bancos vs SAP',
-            data=output_bancos,
-            file_name=get_export_filename('conc_bancos_sap', periodo),
-            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
+    try:
+        output_bancos.seek(0)
+        with st.session_state['conc_bancos']:
+            st.download_button(
+                label='⬇ Conciliación Bancos vs SAP',
+                data=output_bancos,
+                file_name=get_export_filename('conc_bancos_sap', periodo),
+                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+    except AttributeError:
+        print("El objeto de salida 'output_bancos' no es un objeto de bytes, no se puede descargar el archivo.")
+    except KeyError:
+        print("No existe el estado de sesión 'conc_bancos' para Streamlit, no se puede descargar el archivo.")
+    
 
     """Conciliación SAP x Bancos"""
 
@@ -414,14 +419,18 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[
     print(f"Número total de filas en la conciliación: {len(conciliacion_sap_vs_edo)}")
     print(f"Número de filas en SAP: {len(sap_caja)}")
 
-    # exportamos la conciliación a Excel
-    output_sap = io.BytesIO()
+    # exportamos la conciliación a Excel    
     export_sap_reconciliation(conciliacion_sap_vs_edo, output_sap, sap_caja.columns.to_list())
-    output_sap.seek(0)
-    with st.session_state['conc_sap']:
-        st.download_button(
-            label='⬇ Conciliación SAP vs Bancos',
-            data=output_sap,
-            file_name= get_export_filename('conc_sap_bancos', periodo),
-            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
+    try:
+        output_sap.seek(0)
+        with st.session_state['conc_sap']:
+            st.download_button(
+                label='⬇ Conciliación SAP vs Bancos',
+                data=output_sap,
+                file_name= get_export_filename('conc_sap_bancos', periodo),
+                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+    except AttributeError:
+        print("El objeto de salida 'output_sap' no es un objeto de bytes, no se puede descargar el archivo.")
+    except KeyError:
+        print("No existe el estado de sesión 'conc_sap' para Streamlit, no se puede descargar el archivo.")

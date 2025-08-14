@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 import numpy as np
-from utils import get_encoding
+from concil.utils import get_encoding
 
 def preprocess_brte(uploaded_file)->pd.DataFrame:
     # para Banorte, se recibe como .csv

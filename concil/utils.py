@@ -1,9 +1,9 @@
 import chardet
 import pandas as pd
 import re
-from datetime import datetime, date
+from datetime import date
 import calendar
-from config import SEPARADOR
+from concil.config import SEPARADOR
 
 def separar_texto_cabecera(texto):
     partes = texto.split(SEPARADOR)

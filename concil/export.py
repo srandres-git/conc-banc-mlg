@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
-from utils import excel_col_letter
-from config import COLS_TO_KEEP_EDO_CTA, RENAME_COLUMNS, COLS_TO_KEEP_SAP
+from concil.utils import excel_col_letter
+from concil.config import COLS_TO_KEEP_EDO_CTA, RENAME_COLUMNS, COLS_TO_KEEP_SAP
 
 def export_bank(df: pd.DataFrame, output_file, bank, account):
     sheet_name = f"{bank}_{account}"
@@ -187,9 +187,13 @@ def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_fi
                     worksheet.set_column(col_num, col_num, col_len)
 
     # mostramos el resumen en pantalla
-    with st.session_state['conc_bancos']:
-        st.markdown("### Resumen de conciliación Bancos vs SAP")
-        st.write(resumen)
+    try:
+        with st.session_state['conc_bancos']:
+            st.markdown("### Resumen de conciliación Bancos vs SAP")
+            st.write(resumen)
+    except KeyError:
+        # Si no hay sesión de Streamlit, simplemente no mostramos el resumen
+        pass
 
 
 def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file: str, sap_cols: list[str]):
@@ -320,6 +324,10 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
                 else:
                     worksheet.set_column(col_num, col_num, col_len)
     # mostramos el resumen en pantalla
-    with st.session_state['conc_sap']:
-        st.markdown("### Resumen de conciliación SAP vs Bancos")
-        st.write(resumen_sap)
+    try:
+        with st.session_state['conc_sap']:
+            st.markdown("### Resumen de conciliación SAP vs Bancos")
+            st.write(resumen_sap)
+    except KeyError:
+        # Si no hay sesión de Streamlit, simplemente no mostramos el resumen
+        pass

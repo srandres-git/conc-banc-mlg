@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
-from config import CUENTAS, TYPES_EDO_CTA
-from cves import asign_cve
-from utils import get_current_month_range
-from conc import conciliar, format_sap_caja, format_edo_cta
+from concil.config import CUENTAS, TYPES_EDO_CTA
+from format_banc.cves import asign_cve
+from concil.utils import get_current_month_range
+from concil.conc import conciliar, format_sap_caja, format_edo_cta
 
 st.title("Conciliación bancaria")
 

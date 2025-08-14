@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from utils import get_encoding
+from concil.utils import get_encoding
 import re
 
 def preprocess_pnc(uploaded_file)->pd.DataFrame:

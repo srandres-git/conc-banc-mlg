@@ -1,12 +1,12 @@
 import re
 import pandas as pd
-from bnx import asign_cve_bnx, preprocess_bnx, format_bnx
-from stder import asign_cve_stder, preprocess_stder, format_stder
-from hsbc import asign_cve_hsbc, preprocess_hsbc, format_hsbc
-from bbva import asign_cve_bbva, preprocess_bbva, format_bbva
-from pnc import asign_cve_pnc, preprocess_pnc, format_pnc
-from brte import asign_cve_brte, preprocess_brte, format_brte
-from config import COLS_EDO_CTA
+from format_banc.bnx import asign_cve_bnx, preprocess_bnx, format_bnx
+from format_banc.stder import asign_cve_stder, preprocess_stder, format_stder
+from format_banc.hsbc import asign_cve_hsbc, preprocess_hsbc, format_hsbc
+from format_banc.bbva import asign_cve_bbva, preprocess_bbva, format_bbva
+from format_banc.pnc import asign_cve_pnc, preprocess_pnc, format_pnc
+from format_banc.brte import asign_cve_brte, preprocess_brte, format_brte
+from concil.config import COLS_EDO_CTA
 
 def asign_tipo_movimiento(row: pd.Series) -> str:
     """
