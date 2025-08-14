@@ -172,38 +172,38 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
     # TODO: este código elimina erróneamente otros movimientos que no son comisión ni IVA de comisión
     # queda pendiente revisar
 
-    # agrupamos los movimientos que tengan tipo de movimiento "COMISIÓN" e "IVA DE COMISIÓN"
-    # que estén en la misma cuenta y con la misma fecha
-    # separamos las columnas de edo_cta por tipo y función de agregación
-    agg_edo_cta = {
-        col: 'sum' for col in edo_cta_cves.columns if col in ['CARGO', 'ABONO', 'IMPORTE']
-    }
-    # preservamos la primera fecha, cuenta y banco puesto que es lo mismo para todos los movimientos de la misma clave
-    agg_edo_cta['FECHA'] = 'first'
-    agg_edo_cta['CUENTA'] = 'first'
-    # saldo tomamos el último saldo del periodo
-    agg_edo_cta['SALDO'] = 'last'
-    # el resto de columnas las concatenamos
-    agg_edo_cta.update({
-        col: lambda x: ', '.join([str(y) if not y is None else '' for y in x.unique() ]) for col in edo_cta_cves.columns if col not in agg_edo_cta
-    })
-    print(agg_edo_cta)
-    # agrupamos por las columnas clave y aplicamos las funciones de agregación
-    edo_cta_grouped = edo_cta_cves[(edo_cta_cves['TIPO MOVIMIENTO'].isin(['COMISIÓN', 'IVA DE COMISIÓN']))
-                                   & (edo_cta_cves['CARGO/ABONO']=='CARGO')].groupby(
-        ['BANCO', 'CUENTA', 'FECHA',],
-        as_index=False
-    ).agg(agg_edo_cta)
-    # extraemos las claves de movimiento bancario que tienen más de un movimiento
-    duplicated_keys = edo_cta_grouped['CLAVE'].str.split(', ').explode().unique()
-    # quitamos del original los que tienen clave de movimiento bancario duplicada y sean "COMISIÓN" o "IVA DE COMISIÓN"
-    # en su lugar concatenamos los de edo_cta_grouped
-    edo_cta_cves.drop(edo_cta_cves[
-        (edo_cta_cves['CLAVE'].isin(duplicated_keys)) &
-        (edo_cta_cves['TIPO MOVIMIENTO'].isin(['COMISIÓN', 'IVA DE COMISIÓN'])) &
-        (edo_cta_cves['CARGO/ABONO'] == 'CARGO')
-    ].index, inplace=True)
-    edo_cta_cves = pd.concat([edo_cta_cves, edo_cta_grouped], ignore_index=True)
+    # # agrupamos los movimientos que tengan tipo de movimiento "COMISIÓN" e "IVA DE COMISIÓN"
+    # # que estén en la misma cuenta y con la misma fecha
+    # # separamos las columnas de edo_cta por tipo y función de agregación
+    # agg_edo_cta = {
+    #     col: 'sum' for col in edo_cta_cves.columns if col in ['CARGO', 'ABONO', 'IMPORTE']
+    # }
+    # # preservamos la primera fecha, cuenta y banco puesto que es lo mismo para todos los movimientos de la misma clave
+    # agg_edo_cta['FECHA'] = 'first'
+    # agg_edo_cta['CUENTA'] = 'first'
+    # # saldo tomamos el último saldo del periodo
+    # agg_edo_cta['SALDO'] = 'last'
+    # # el resto de columnas las concatenamos
+    # agg_edo_cta.update({
+    #     col: lambda x: ', '.join([str(y) if not y is None else '' for y in x.unique() ]) for col in edo_cta_cves.columns if col not in agg_edo_cta
+    # })
+    # print(agg_edo_cta)
+    # # agrupamos por las columnas clave y aplicamos las funciones de agregación
+    # edo_cta_grouped = edo_cta_cves[(edo_cta_cves['TIPO MOVIMIENTO'].isin(['COMISIÓN', 'IVA DE COMISIÓN']))
+    #                                & (edo_cta_cves['CARGO/ABONO']=='CARGO')].groupby(
+    #     ['BANCO', 'CUENTA', 'FECHA',],
+    #     as_index=False
+    # ).agg(agg_edo_cta)
+    # # extraemos las claves de movimiento bancario que tienen más de un movimiento
+    # duplicated_keys = edo_cta_grouped['CLAVE'].str.split(', ').explode().unique()
+    # # quitamos del original los que tienen clave de movimiento bancario duplicada y sean "COMISIÓN" o "IVA DE COMISIÓN"
+    # # en su lugar concatenamos los de edo_cta_grouped
+    # edo_cta_cves.drop(edo_cta_cves[
+    #     (edo_cta_cves['CLAVE'].isin(duplicated_keys)) &
+    #     (edo_cta_cves['TIPO MOVIMIENTO'].isin(['COMISIÓN', 'IVA DE COMISIÓN'])) &
+    #     (edo_cta_cves['CARGO/ABONO'] == 'CARGO')
+    # ].index, inplace=True)
+    # edo_cta_cves = pd.concat([edo_cta_cves, edo_cta_grouped], ignore_index=True)
 
     return edo_cta_cves
 
