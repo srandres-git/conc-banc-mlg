@@ -10,7 +10,7 @@ import io
 
 def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.DataFrame:
     """Formateo Reporte Caja SAP"""
-    if SAP_LANGUAGE == 'en':
+    if SAP_LANGUAGE == 'en' or 'Journal Entry Type' in sap_caja.columns:
         # traducimos los valores del reporte de SAP al español
         sap_caja.replace(SAP_VALUES_ENG_SPAN, inplace=True)
         # renombramos las columnas del reporte de SAP

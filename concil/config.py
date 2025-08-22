@@ -243,4 +243,4 @@ SAP_VALUES_ENG_SPAN = {
     }
 }
 # Idioma en el que se encuentra el reporte de SAP
-SAP_LANGUAGE = 'en'  # 'en' para inglés, 'es' para español
+SAP_LANGUAGE = 'es'  # 'en' para inglés, 'es' para español
