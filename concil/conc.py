@@ -67,11 +67,20 @@ def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.Dat
         'CARGO'
     )
     # agregamos columna de importe dependiendo de si es un cargo o un abono
-    sap_caja['Importe'] = np.where(
-        sap_caja['Cargo/Abono'] == 'ABONO',
+    # y tomamos en cuenta si la moneda de la cuenta bancaria es MXN o USD
+    conditions = [
+        (sap_caja['Cargo/Abono'] == 'ABONO') & (sap_caja['ID de cuenta bancaria/gastos menores'].str.contains('MXN')),
+        (sap_caja['Cargo/Abono'] == 'ABONO') & (~sap_caja['ID de cuenta bancaria/gastos menores'].str.contains('MXN')),
+        (sap_caja['Cargo/Abono'] == 'CARGO') & (sap_caja['ID de cuenta bancaria/gastos menores'].str.contains('MXN')),
+        (sap_caja['Cargo/Abono'] == 'CARGO') & (~sap_caja['ID de cuenta bancaria/gastos menores'].str.contains('MXN')),
+    ]
+    choices = [
+        sap_caja['Importe en debe en moneda de empresa'],
         sap_caja['Importe en debe en moneda de transacción'],
-        sap_caja['Importe en haber en moneda de transacción']
-    )
+        sap_caja['Importe en haber en moneda de empresa'],
+        sap_caja['Importe en haber en moneda de transacción'],
+    ]
+    sap_caja['Importe'] = np.select(conditions, choices, default=0)
     # conteo de cargos y abonos
     print(f"Conteo de cargos y abonos:\n{sap_caja['Cargo/Abono'].value_counts()}")
 
