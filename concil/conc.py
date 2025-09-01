@@ -10,6 +10,7 @@ import io
 
 def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.DataFrame:
     """Formateo Reporte Caja SAP"""
+    print('[FORMATEO SAP CAJA]')
     if SAP_LANGUAGE == 'en' or 'Journal Entry Type' in sap_caja.columns:
         # traducimos los valores del reporte de SAP al español
         sap_caja.replace(SAP_VALUES_ENG_SPAN, inplace=True)
@@ -18,7 +19,7 @@ def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.Dat
 
     # extraemos todos los asientos contables de anulación distintos de #
     asientos_anulacion = sap_caja[sap_caja['Asiento contable de anulación'] != '#']["Asiento contable de anulación"].unique()
-    print(f"Número de asientos contables de anulación distintos de #: {len(asientos_anulacion)}")
+    # print(f"Número de asientos contables de anulación distintos de #: {len(asientos_anulacion)}")
     # los movimientos anulados son aquellos que tienen un Asiento contable de compensación igual a alguno de los de anulación anteriores
     # los eliminamos de la tabla
     sap_caja = sap_caja[~sap_caja['Asiento contable de compensación'].isin(asientos_anulacion)]
@@ -33,8 +34,8 @@ def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.Dat
         'Transferencia de fondos',
     ])]
 
-    print(f"Número de filas en sap_caja: {len(sap_caja)}")
-    print(f'Tipos de asiento contable únicos en sap_caja: {sap_caja["Tipo de asiento contable"].unique()}')
+    # print(f"Número de filas en sap_caja: {len(sap_caja)}")
+    # print(f'Tipos de asiento contable únicos en sap_caja: {sap_caja["Tipo de asiento contable"].unique()}')
 
     for x in ['debe','haber']:
         for moneda in ['moneda de empresa', 'moneda de transacción']:
@@ -82,7 +83,7 @@ def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.Dat
     ]
     sap_caja['Importe'] = np.select(conditions, choices, default=0)
     # conteo de cargos y abonos
-    print(f"Conteo de cargos y abonos:\n{sap_caja['Cargo/Abono'].value_counts()}")
+    # print(f"Conteo de cargos y abonos:\n{sap_caja['Cargo/Abono'].value_counts()}")
 
     # Extracción de clave, tipo de movimiento y texto de la transferencia a partir del texto de cabecera
 
@@ -136,11 +137,13 @@ def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.Dat
         & (sap_caja['Asiento contable'].isin(duplicated_asientos))
     ].index, inplace=True)
     sap_caja = pd.concat([sap_caja, sap_caja_grouped], ignore_index=True)
-    print(sap_caja[sap_caja['Asiento contable'].str.contains(',')])
+    # print(sap_caja[sap_caja['Asiento contable'].str.contains(',')])
+    print('[FIN FORMATEO SAP CAJA]')
     return sap_caja
 
 def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.DataFrame:
     """Formateo estados de cuenta"""
+    print('[FORMATEO ESTADO DE CUENTA]')
     edo_cta_cves['CLAVE'] = edo_cta_cves['CLAVE'].astype(str).str.strip()
     # eliminamos los ceros a la izquierda de la clave
     edo_cta_cves['CLAVE'] = edo_cta_cves['CLAVE'].apply(lambda x: re.sub(r'^[0]+', '', x) if isinstance(x, str) else x)
@@ -196,7 +199,7 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
     agg_edo_cta.update({
         col: lambda x: ', '.join([str(y) if not y is None else '' for y in x.unique() ]) for col in edo_cta_cves.columns if col not in agg_edo_cta
     })
-    print(agg_edo_cta)
+    # print(agg_edo_cta)
     # agrupamos por las columnas clave y aplicamos las funciones de agregación
     edo_cta_grouped = edo_cta_cves[(edo_cta_cves['TIPO MOVIMIENTO'].isin(['COMISIÓN', 'IVA DE COMISIÓN']))
                                    & (edo_cta_cves['CARGO/ABONO']=='CARGO')].groupby(
@@ -213,11 +216,12 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
         (edo_cta_cves['CARGO/ABONO'] == 'CARGO')
     ].index, inplace=True)
     edo_cta_cves = pd.concat([edo_cta_cves, edo_cta_grouped], ignore_index=True)
-
+    print('[FIN FORMATEO ESTADO DE CUENTA]')
     return edo_cta_cves
 
 def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[date,date],output_bancos = io.BytesIO(),output_sap = io.BytesIO()) -> None:   
     """Conciliación Bancos x SAP"""
+    print('[CONCILIACIÓN BANCOS x SAP]')
     DIFF_RAN = 1
     conciliados = []
     # Paso 1: separamos los reportes por banco, cuenta y tipo de movimiento (CARGO/ABONO)
@@ -318,10 +322,11 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[
     )
 
     # verificar que el número de filas sea el esperado
-    print(f"Número total de filas en la conciliación: {len(conciliacion_edo_cta_sap)}")
-    print(f"Número de filas en estados de cuenta: {len(edo_cta_cves)}")
+    # print(f"Número total de filas en la conciliación: {len(conciliacion_edo_cta_sap)}")
+    # print(f"Número de filas en estados de cuenta: {len(edo_cta_cves)}")
 
     # exportamos la conciliación a Excel
+    print('[EXPORTANDO CONCILIACIÓN SAP x BANCOS]')
     export_bank_reconciliation(conciliacion_edo_cta_sap, output_bancos, edo_cta_cves.columns.to_list())
     try:
         output_bancos.seek(0)
@@ -336,10 +341,10 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[
         print("El objeto de salida 'output_bancos' no es un objeto de bytes, no se puede descargar el archivo.")
     except KeyError:
         print("No existe el estado de sesión 'conc_bancos' para Streamlit, no se puede descargar el archivo.")
-    
+    print('[FIN CONCILIACIÓN BANCOS x SAP]')
 
     """Conciliación SAP x Bancos"""
-
+    print('[CONCILIACIÓN SAP x BANCOS]')
     # Lista para ir acumulando resultados
     conciliados = []
 
@@ -429,10 +434,11 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[
     ).abs().dt.days
 
     # verificamos el número de filas
-    print(f"Número total de filas en la conciliación: {len(conciliacion_sap_vs_edo)}")
-    print(f"Número de filas en SAP: {len(sap_caja)}")
+    # print(f"Número total de filas en la conciliación: {len(conciliacion_sap_vs_edo)}")
+    # print(f"Número de filas en SAP: {len(sap_caja)}")
 
     # exportamos la conciliación a Excel    
+    print('[EXPORTANDO CONCILIACIÓN SAP x BANCOS]')
     export_sap_reconciliation(conciliacion_sap_vs_edo, output_sap, sap_caja.columns.to_list())
     try:
         output_sap.seek(0)
@@ -447,3 +453,4 @@ def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[
         print("El objeto de salida 'output_sap' no es un objeto de bytes, no se puede descargar el archivo.")
     except KeyError:
         print("No existe el estado de sesión 'conc_sap' para Streamlit, no se puede descargar el archivo.")
+    print('[FIN CONCILIACIÓN SAP x BANCOS]')
