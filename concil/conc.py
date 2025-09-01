@@ -219,11 +219,16 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
     print('[FIN FORMATEO ESTADO DE CUENTA]')
     return edo_cta_cves
 
-def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[date,date],output_bancos = io.BytesIO(),output_sap = io.BytesIO()) -> None:   
+def conciliar(edo_cta_cves: pd.DataFrame, sap_caja: pd.DataFrame,periodo: tuple[date,date],output_bancos = "",output_sap = "") -> None:  
     """Conciliación Bancos x SAP"""
     print('[CONCILIACIÓN BANCOS x SAP]')
     DIFF_RAN = 1
     conciliados = []
+    # si no se proporciona un objeto de salida, creamos uno nuevo
+    if output_bancos == "":
+        output_bancos = io.BytesIO()
+    if output_sap == "":
+        output_sap = io.BytesIO()
     # Paso 1: separamos los reportes por banco, cuenta y tipo de movimiento (CARGO/ABONO)
     for (banco,cuenta,tipo), edo_cta_group in edo_cta_cves.groupby(['BANCO', 'CUENTA', 'CARGO/ABONO']):
         sap_caja_group = sap_caja[(sap_caja['Unnamed: 3'] == CATALOGO_BANCOS_EDO_CTA[banco]) &
