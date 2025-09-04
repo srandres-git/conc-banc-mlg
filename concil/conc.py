@@ -136,6 +136,7 @@ def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.Dat
         (sap_caja['Clave de movimiento bancario'].isin(duplicated_keys))
         & (sap_caja['Asiento contable'].isin(duplicated_asientos))
     ].index, inplace=True)
+    print(f'Asientos eliminados por estar duplicados: {sap_caja[sap_caja["Asiento contable"].isin(duplicated_asientos)]["Asiento contable"].unique()}')
     sap_caja = pd.concat([sap_caja, sap_caja_grouped], ignore_index=True)
     # print(sap_caja[sap_caja['Asiento contable'].str.contains(',')])
     print('[FIN FORMATEO SAP CAJA]')
