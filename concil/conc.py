@@ -126,16 +126,37 @@ def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.Dat
     ).agg(agg_sap)
     sap_caja_grouped = sap_caja_grouped[(sap_caja_grouped['Asiento contable'].str.contains(','))
                                         & (sap_caja_grouped['Cargo/Abono'] == 'CARGO')]
-    # extraemos las claves de movimiento bancario que tienen más de un movimiento
-    duplicated_keys = sap_caja_grouped['Clave de movimiento bancario']
-    # extraemos los asientos contables que tienen más de un movimiento
-    duplicated_asientos = sap_caja_grouped['Asiento contable'].str.split(', ').explode().unique()
-    # quitamos del original los que tienen clave de movimiento bancario duplicada y asiento contable duplicado
-    # en su lugar concatenamos los de sap_caja_grouped
-    sap_caja.drop(sap_caja[
-        (sap_caja['Clave de movimiento bancario'].isin(duplicated_keys))
-        & (sap_caja['Asiento contable'].isin(duplicated_asientos))
-    ].index, inplace=True)
+    # # extraemos las claves de movimiento bancario que tienen más de un movimiento
+    # duplicated_keys = sap_caja_grouped['Clave de movimiento bancario']
+    # # extraemos los asientos contables que tienen más de un movimiento
+    # duplicated_asientos = sap_caja_grouped['Asiento contable'].str.split(', ').explode().unique()
+    # # quitamos del original los que tienen clave de movimiento bancario duplicada y asiento contable duplicado
+    # # en su lugar concatenamos los de sap_caja_grouped
+    # sap_caja.drop(sap_caja[
+    #     (sap_caja['Clave de movimiento bancario'].isin(duplicated_keys))
+    #     & (sap_caja['Asiento contable'].isin(duplicated_asientos))
+    # ].index, inplace=True)
+
+    # generamos una lista concatenada cuenta-fecha-clave-asiento duplicado para identificar los movimientos a eliminar
+    # primero generamos el explode de asientos contables duplicados
+    sap_caja_grouped_exploded = sap_caja_grouped.assign(
+        Asiento_contable_exploded = sap_caja_grouped['Asiento contable'].str.split(', ')
+    ).explode('Asiento_contable_exploded')
+    sap_caja_grouped_exploded['concat_dup'] = sap_caja_grouped_exploded['ID de cuenta bancaria/gastos menores'] + '|' + \
+        sap_caja_grouped_exploded['Fecha de contabilización'].dt.strftime(DATE_FORMAT) + '|' + \
+        sap_caja_grouped_exploded['Clave de movimiento bancario'] + '|' + \
+        sap_caja_grouped_exploded['Asiento_contable_exploded']
+    duplicated_concats = sap_caja_grouped_exploded['concat_dup'].unique()
+
+    # luego generamos la misma columna en sap_caja
+    sap_caja['concat_dup'] = sap_caja['ID de cuenta bancaria/gastos menores'] + '|' + \
+        sap_caja['Fecha de contabilización'].dt.strftime(DATE_FORMAT) + '|' + \
+        sap_caja['Clave de movimiento bancario'] + '|' + \
+        sap_caja['Asiento contable']
+    
+    # eliminamos del original los que tienen la misma concatenación que los duplicados
+    sap_caja.drop(sap_caja[sap_caja['concat_dup'].isin(duplicated_concats)].index, inplace=True)
+    sap_caja.drop(columns=['concat_dup'], inplace=True)
     # print(f'Asientos eliminados por estar duplicados: {sap_caja[sap_caja["Asiento contable"].isin(duplicated_asientos)]["Asiento contable"].unique()}')
     sap_caja = pd.concat([sap_caja, sap_caja_grouped], ignore_index=True)
     # print(sap_caja[sap_caja['Asiento contable'].str.contains(',')])
