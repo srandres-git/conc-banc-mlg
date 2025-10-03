@@ -82,6 +82,10 @@ def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_fi
     # ignoramos las despreciables: <1 MXN o <0.1 USD
     df_diff_importe = df_full[((df_full['Diferencia importes'].abs() >=1) & (df_full['MONEDA'] == 'MXN'))
                             | ((df_full['Diferencia importes'].abs() >=0.1) & (df_full['MONEDA'] == 'USD')) ]
+    
+    # ponemos las despreciables en otra pestaña
+    df_diff_importe_dsp = df_full[((df_full['Diferencia importes'].abs() <1) & (df_full['MONEDA'] == 'MXN'))
+                            | ((df_full['Diferencia importes'].abs() <0.1) & (df_full['MONEDA'] == 'USD')) ]
 
     # 5. Diferencias en fechas
     df_diff_fecha = df_full[df_full['Diferencia fechas (días)'] > 0]
@@ -114,6 +118,7 @@ def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_fi
         df_conciliados.to_excel(writer, sheet_name='Conciliados', index=False, freeze_panes=(2, 0), startrow=1)
         df_no_conciliados.to_excel(writer, sheet_name='No conciliados', index=False, freeze_panes=(2, 0), startrow=1)
         df_diff_importe.to_excel(writer, sheet_name='Diferencia importe', index=False, freeze_panes=(2, 0), startrow=1)
+        df_diff_importe_dsp.to_excel(writer, sheet_name='Diferencia importe <1MXN/0.1USD', index=False, freeze_panes=(2, 0), startrow=1)
         df_diff_fecha.to_excel(writer, sheet_name='Diferencia fecha', index=False, freeze_panes=(2, 0), startrow=1)
         resumen.to_excel(writer, sheet_name='Resumen', index=False, freeze_panes=(2, 0), startrow=1)
         totales.to_excel(writer, sheet_name='Totales por moneda', index=False, freeze_panes=(2, 0), startrow=1)
@@ -124,6 +129,7 @@ def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_fi
         writer.sheets['Conciliados'].set_tab_color('#A9D08E')               # verde
         writer.sheets['No conciliados'].set_tab_color('#FF5050' )           # rojo
         writer.sheets['Diferencia importe'].set_tab_color('#FFD966')        # amarillo
+        writer.sheets['Diferencia importe <1MXN/0.1USD'].set_tab_color('#FFE699') # amarillo claro
         writer.sheets['Diferencia fecha'].set_tab_color( '#F4B084')         # naranja
         writer.sheets['Resumen'].set_tab_color('#B4C6E7')                   # azul grisáceo
         writer.sheets['Totales por moneda'].set_tab_color('#B7DEE8')        # azul agua
@@ -147,10 +153,10 @@ def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_fi
         })
 
 
-        for sheet in ['Bancos vs SAP', 'Conciliados', 'No conciliados', 'Diferencia importe', 'Diferencia fecha', 'Resumen', 'Totales por moneda']:
+        for sheet in ['Bancos vs SAP', 'Conciliados', 'No conciliados', 'Diferencia importe', 'Diferencia fecha', 'Resumen', 'Totales por moneda', 'Diferencia importe <1MXN/0.1USD']:
             worksheet = writer.sheets[sheet]
             # Determina columnas a formatear
-            if sheet in ['Bancos vs SAP', 'Conciliados', 'No conciliados', 'Diferencia importe', 'Diferencia fecha']:
+            if sheet in ['Bancos vs SAP', 'Conciliados', 'No conciliados', 'Diferencia importe', 'Diferencia fecha', 'Diferencia importe <1MXN/0.1USD']:
                 df = df_full
             elif sheet == 'Resumen':
                 df = resumen
@@ -223,6 +229,10 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
     # ignoramos diferencias despreciables de <1 MXN o <0.1 USD
     df_diff_importe_sap = df_full_sap[((df_full_sap['Diferencia importes'].abs() >= 1) & (df_full_sap['MONEDA']=='MXN'))
                                     | ((df_full_sap['Diferencia importes'].abs() >=0.1) & (df_full_sap['MONEDA']=='USD'))]
+    
+    # ponemos las despreciables en otra pestaña
+    df_diff_importe_dsp_sap = df_full_sap[((df_full_sap['Diferencia importes'].abs() <1) & (df_full_sap['MONEDA'] == 'MXN'))
+                            | ((df_full_sap['Diferencia importes'].abs() <0.1) & (df_full_sap['MONEDA'] == 'USD')) ]
 
     # 5. Diferencias en fechas
     df_diff_fecha_sap = df_full_sap[df_full_sap['Diferencia fechas (días)'] > 0]
@@ -254,6 +264,7 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
         df_conciliados_sap.to_excel(writer, sheet_name='Conciliados', index=False, freeze_panes=(2, 0), startrow=1)
         df_no_conciliados_sap.to_excel(writer, sheet_name='No conciliados', index=False, freeze_panes=(2, 0), startrow=1)
         df_diff_importe_sap.to_excel(writer, sheet_name='Diferencia importe', index=False, freeze_panes=(2, 0), startrow=1)
+        df_diff_importe_dsp_sap.to_excel(writer, sheet_name='Diferencia importe <1MXN/0.1USD', index=False, freeze_panes=(2, 0), startrow=1)
         df_diff_fecha_sap.to_excel(writer, sheet_name='Diferencia fecha', index=False, freeze_panes=(2, 0), startrow=1)
         resumen_sap.to_excel(writer, sheet_name='Resumen', index=False, freeze_panes=(2, 0), startrow=1)
         totales_sap.to_excel(writer, sheet_name='Totales por moneda', index=False, freeze_panes=(2, 0), startrow=1)
@@ -264,6 +275,7 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
         writer.sheets['Conciliados'].set_tab_color('#A9D08E')
         writer.sheets['No conciliados'].set_tab_color('#FF5050')
         writer.sheets['Diferencia importe'].set_tab_color('#FFD966')
+        writer.sheets['Diferencia importe <1MXN/0.1USD'].set_tab_color('#FFE699')
         writer.sheets['Diferencia fecha'].set_tab_color('#F4B084')
         writer.sheets['Resumen'].set_tab_color('#B4C6E7')
         writer.sheets['Totales por moneda'].set_tab_color('#B7DEE8')
@@ -291,6 +303,7 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
             ('Conciliados', df_conciliados_sap),
             ('No conciliados', df_no_conciliados_sap),
             ('Diferencia importe', df_diff_importe_sap),
+            ('Diferencia importe <1MXN/0.1USD', df_diff_importe_dsp_sap),
             ('Diferencia fecha', df_diff_fecha_sap),
             ('Resumen', resumen_sap),
             ('Totales por moneda', totales_sap)
