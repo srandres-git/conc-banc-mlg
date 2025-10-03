@@ -84,8 +84,9 @@ def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_fi
                             | ((df_full['Diferencia importes'].abs() >=0.1) & (df_full['MONEDA'] == 'USD')) ]
     
     # ponemos las despreciables en otra pestaña
-    df_diff_importe_dsp = df_full[((df_full['Diferencia importes'].abs() <1) & (df_full['MONEDA'] == 'MXN'))
-                            | ((df_full['Diferencia importes'].abs() <0.1) & (df_full['MONEDA'] == 'USD')) ]
+    df_diff_importe_dsp = df_full[(df_full['Diferencia importes'].abs()>0)
+                            & (((df_full['Diferencia importes'].abs() <1) & (df_full['MONEDA'] == 'MXN'))
+                            | ((df_full['Diferencia importes'].abs() <0.1) & (df_full['MONEDA'] == 'USD')) )]
 
     # 5. Diferencias en fechas
     df_diff_fecha = df_full[df_full['Diferencia fechas (días)'] > 0]
@@ -231,8 +232,9 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
                                     | ((df_full_sap['Diferencia importes'].abs() >=0.1) & (df_full_sap['MONEDA']=='USD'))]
     
     # ponemos las despreciables en otra pestaña
-    df_diff_importe_dsp_sap = df_full_sap[((df_full_sap['Diferencia importes'].abs() <1) & (df_full_sap['MONEDA'] == 'MXN'))
-                            | ((df_full_sap['Diferencia importes'].abs() <0.1) & (df_full_sap['MONEDA'] == 'USD')) ]
+    df_diff_importe_dsp_sap = df_full_sap[(df_full_sap['Diferencia importes'].abs()>0)
+                            & (((df_full_sap['Diferencia importes'].abs() <1) & (df_full_sap['MONEDA'] == 'MXN'))
+                            | ((df_full_sap['Diferencia importes'].abs() <0.1) & (df_full_sap['MONEDA'] == 'USD'))) ]
 
     # 5. Diferencias en fechas
     df_diff_fecha_sap = df_full_sap[df_full_sap['Diferencia fechas (días)'] > 0]
