@@ -55,11 +55,14 @@ def asign_cve_hsbc(row):
         match = re.search(r"A2000(\d{5})", ref_cliente)
         if match:
             cve = match.group(1)+ ref_banc + "_" + str(row["Fecha del apunte"]).replace("/", "")
-    # # si en la descripción hay "ABONO FIPP FOLIO:", cve son los siguientes 6 dígitos precedidos de "FIPP_"
-    # elif "ABONO FIPP FOLIO:" in descripcion:
-    #     match = re.search(r"ABONO FIPP FOLIO:\s*(\d{6})", descripcion)
-    #     if match:
-    #         cve = 'FIPP_'+match.group(1)
+    # si el movimiento tiene referencia 5203 y en la descripción hay "ABONO POR CARTERA REMANENTE",
+    # cve es la palabra siguiente seguida de la fecha a 6 dígitos
+    elif ref_banc=='5203'and 'ABONO POR CARTERA REMANENTE' in descripcion:
+        match = re.search(r"ABONO POR CARTERA REMANENTE ([A-Z]+)", descripcion)
+        if match:
+            d,m,y = str(row['Fecha del apunte']).split('/')
+            cve = match.group(1)+d+m+y[-2:]
+        else: return ref_cliente
     # si en la referencia de cliente aparece "D[5 dígitos]", cve es este patrón
     elif re.search(r"D\d{5}", ref_cliente):
         match = re.search(r"D(\d{5})", ref_cliente)
