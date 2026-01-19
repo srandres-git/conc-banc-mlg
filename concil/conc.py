@@ -172,7 +172,8 @@ def format_edo_cta(edo_cta_cves: pd.DataFrame, periodo: tuple[date,date]) -> pd.
 
     # Convertimos la cuenta a string, tomando los últimos 3 caracteres (rellenar con ceros a la izquierda si es necesario)
     edo_cta_cves['CUENTA'] = edo_cta_cves['CUENTA'].astype(str).str.strip()
-    edo_cta_cves['CUENTA'] = edo_cta_cves['CUENTA'].apply(lambda x: x[-3:].zfill(3))
+    # solo rellenamos si la cadena es un número
+    edo_cta_cves['CUENTA'] = edo_cta_cves['CUENTA'].apply(lambda x: x[-3:].zfill(3) if x.isdigit() else x)
 
     # convertimos columnas a numéricas
     edo_cta_cves['CARGO'] = pd.to_numeric(edo_cta_cves['CARGO'], errors='coerce').fillna(0)
