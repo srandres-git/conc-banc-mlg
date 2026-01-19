@@ -48,7 +48,6 @@ if uploaded_files['sap']:
     text_lines = uploaded_files['sap'].getvalue().decode('utf-8').splitlines()
     # contamos las líneas vacías para ajustar la búsqueda y considerar restarlas al final
     empty_lines = 0
-    st.write('Buscando fila de encabezado...')
     for i, line in enumerate(text_lines):
         if len(line)==0:
             empty_lines += 1
@@ -61,20 +60,15 @@ if uploaded_files['sap']:
     if not header_found:
         st.error('No se encontró la fila de encabezado en el archivo de SAP. Asegúrate de que el archivo es correcto.')
     else:
-        st.write(f'Filas vacías encontradas antes del encabezado: {empty_lines}')
         try: 
             header_rows = header_rows - empty_lines
-            st.write(f'Fila de encabezado encontrada en la fila {header_rows + 1}.')
             sap_caja = pd.read_csv(uploaded_files['sap'], header=header_rows, dtype=str)
-            st.write(f'{sap_caja.columns.tolist()}')
             sap_caja = format_sap_caja(sap_caja, periodo)
             st.success(f'Reporte SAP procesado correctamente: {len(sap_caja)} filas.')
         except KeyError as e:
             try:
                 header_rows = header_rows + empty_lines
-                st.write(f'Intentando con fila de encabezado en la fila {header_rows + 1}...')
                 sap_caja = pd.read_csv(uploaded_files['sap'], header=header_rows, dtype=str)
-                st.write(f'{sap_caja.columns.tolist()}')
                 sap_caja = format_sap_caja(sap_caja, periodo)
                 st.success(f'Reporte SAP procesado correctamente: {len(sap_caja)} filas.')
             except KeyError as e:
