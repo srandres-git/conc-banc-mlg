@@ -43,24 +43,21 @@ uploaded_files['sap'] = st.file_uploader(
 periodo = st.date_input('Periodo a conciliar',get_current_month_range(),format='DD.MM.YYYY')
 
 if uploaded_files['sap']:
-    header_rows = 12
     header_found = False
     # buscamos la fila donde empiezan los datos (donde tenga la palabra "G/L Account" o "Cuenta de mayor")
     text_lines = uploaded_files['sap'].getvalue().decode('utf-8').splitlines()
-    if not 'G/L Account' in text_lines[header_rows] and not 'Cuenta de mayor' in text_lines[header_rows]:
-        # contamos las líneas vacías para ajustar la búsqueda y considerar restarlas al final
-        empty_lines = 0
-        st.write('Buscando fila de encabezado...')
-        for i, line in enumerate(text_lines):
-            if len(line)==0:
-                empty_lines += 1
-                continue
-            if 'G/L Account' in line or 'Cuenta de mayor' in line:
-                header_rows = i
-                header_found = True
-                break
-    else:
-        header_found = True
+    # contamos las líneas vacías para ajustar la búsqueda y considerar restarlas al final
+    empty_lines = 0
+    st.write('Buscando fila de encabezado...')
+    for i, line in enumerate(text_lines):
+        if len(line)==0:
+            empty_lines += 1
+            continue
+        if 'G/L Account' in line or 'Cuenta de mayor' in line:
+            header_rows = i
+            header_found = True
+            break
+
     if not header_found:
         st.error('No se encontró la fila de encabezado en el archivo de SAP. Asegúrate de que el archivo es correcto.')
     else:
