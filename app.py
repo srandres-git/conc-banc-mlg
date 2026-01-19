@@ -43,9 +43,24 @@ uploaded_files['sap'] = st.file_uploader(
 periodo = st.date_input('Periodo a conciliar',get_current_month_range(),format='DD.MM.YYYY')
 
 if uploaded_files['sap']:
-    sap_caja = pd.read_csv(uploaded_files['sap'], encoding='utf-8', header=9)
-    sap_caja = format_sap_caja(sap_caja, periodo)
-    st.success(f'Reporte SAP procesado correctamente: {len(sap_caja)} filas.')
+    header_rows = 9
+    header_found = False
+    # buscamos la fila donde empiezan los datos (donde tenga la palabra "G/L Account" o "Cuenta de mayor")
+    text_lines = uploaded_files['sap'].getvalue().decode('utf-8').splitlines()
+    if not 'G/L Account' in text_lines[header_rows] and not 'Cuenta de mayor' in text_lines[header_rows]:
+        for i, line in enumerate(text_lines):
+            if 'G/L Account' in line or 'Cuenta de mayor' in line:
+                header_rows = i
+                header_found = True
+                break
+    else:
+        header_found = True
+    if not header_found:
+        st.error('No se encontró la fila de encabezado en el archivo de SAP. Asegúrate de que el archivo es correcto.')
+    else:
+        sap_caja = pd.read_csv(uploaded_files['sap'], encoding='utf-8', header=header_rows)
+        sap_caja = format_sap_caja(sap_caja, periodo)
+        st.success(f'Reporte SAP procesado correctamente: {len(sap_caja)} filas.')
 st.session_state['conc_button'] = st.container(key='conc_button')
 st.session_state['conc_bancos'] = st.container(key='conc_bancos')
 st.session_state['conc_sap'] = st.container(key='conc_sap')
