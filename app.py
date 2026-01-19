@@ -59,6 +59,7 @@ if uploaded_files['sap']:
         st.error('No se encontró la fila de encabezado en el archivo de SAP. Asegúrate de que el archivo es correcto.')
     else:
         sap_caja = pd.read_csv(uploaded_files['sap'], encoding='utf-8', header=header_rows)
+        st.write(f'{sap_caja.columns.tolist()}')
         sap_caja = format_sap_caja(sap_caja, periodo)
         st.success(f'Reporte SAP procesado correctamente: {len(sap_caja)} filas.')
 st.session_state['conc_button'] = st.container(key='conc_button')
