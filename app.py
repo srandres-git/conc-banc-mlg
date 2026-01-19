@@ -7,7 +7,7 @@ from concil.conc import conciliar, format_sap_caja, format_edo_cta
 
 st.title("Conciliación bancaria")
 
-st.header("Arrastra los estados de cuenta")
+st.info("Arrastra los estados de cuenta")
 uploaded_files = {}
 dfs_edo_cta = {}
 # Creamos las tabs por banco
@@ -30,9 +30,9 @@ for banco, cuentas in CUENTAS.items():
         )
         if uploaded_files[(banco,cuenta)]:
             dfs_edo_cta[(banco,cuenta)] = asign_cve(uploaded_files[(banco,cuenta)],banco,cuenta)
-            cols[(banco,cuenta)].markdown('Procesado correctamente.')
+            cols[(banco,cuenta)].success(f'Archivo cargado correctamente.')
 
-st.header("Arrastra el reporte de caja de SAP")
+st.info("Arrastra el reporte de caja de SAP")
 uploaded_files['sap'] = st.file_uploader(
     'Caja Partidas Individuales',
     type=['csv'],
@@ -45,7 +45,7 @@ periodo = st.date_input('Periodo a conciliar',get_current_month_range(),format='
 if uploaded_files['sap']:
     sap_caja = pd.read_csv(uploaded_files['sap'], encoding='utf-8', header=9)
     sap_caja = format_sap_caja(sap_caja, periodo)
-    st.markdown(f'Reporte SAP procesado correctamente: {len(sap_caja)} filas.')
+    st.success(f'Reporte SAP procesado correctamente: {len(sap_caja)} filas.')
 st.session_state['conc_button'] = st.container(key='conc_button')
 st.session_state['conc_bancos'] = st.container(key='conc_bancos')
 st.session_state['conc_sap'] = st.container(key='conc_sap')

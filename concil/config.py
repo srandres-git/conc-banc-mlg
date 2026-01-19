@@ -7,7 +7,7 @@ CUENTAS = {
     'HSBC': ['019','455'],
     'BBVA': ['389','844'],
     'Banorte': ['858'],
-    'PNC': ['865']
+    'PNC': ['865','891']
 }
 # extensiones de archivo aceptadas para cada estado de cuenta
 TYPES_EDO_CTA = {
@@ -48,6 +48,7 @@ CATALOGO_CUENTAS = {
     },
     'PNC': {
         'MLGUSDPNCP865 (MLG1000 )': '865',
+        'MLGUSDPNCPSWEEP (MLG1000 )': '891',
     },
     'Banorte': {
         'MLGMXNBANORTE858 (MLG1000 )': '858',
