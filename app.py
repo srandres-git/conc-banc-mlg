@@ -48,6 +48,7 @@ if uploaded_files['sap']:
     # buscamos la fila donde empiezan los datos (donde tenga la palabra "G/L Account" o "Cuenta de mayor")
     text_lines = uploaded_files['sap'].getvalue().decode('utf-8').splitlines()
     if not 'G/L Account' in text_lines[header_rows] and not 'Cuenta de mayor' in text_lines[header_rows]:
+        st.write('Buscando fila de encabezado...')
         for i, line in enumerate(text_lines):
             if 'G/L Account' in line or 'Cuenta de mayor' in line:
                 header_rows = i
@@ -58,6 +59,7 @@ if uploaded_files['sap']:
     if not header_found:
         st.error('No se encontró la fila de encabezado en el archivo de SAP. Asegúrate de que el archivo es correcto.')
     else:
+        st.write(f'Fila de encabezado encontrada en la fila {header_rows + 1}.')
         sap_caja = pd.read_csv(uploaded_files['sap'], encoding='utf-8', header=header_rows)
         st.write(f'{sap_caja.columns.tolist()}')
         sap_caja = format_sap_caja(sap_caja, periodo)
