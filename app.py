@@ -40,7 +40,7 @@ uploaded_files['sap'] = st.file_uploader(
 )
 
 # Agregamos selector de periodo a conciliar
-periodo = st.date_input('Periodo a conciliar',get_current_month_range(),format='DD.MM.YYYY')
+periodo = st.date_input('Periodo a conciliar',get_current_month_range(),)#format='DD.MM.YYYY')
 
 if uploaded_files['sap']:
     header_found = False
