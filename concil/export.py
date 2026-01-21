@@ -49,7 +49,7 @@ def export_bank(df: pd.DataFrame, output_file, bank, account):
                     worksheet.write_formula(0, col_num, formula,subtotal_sum_format)
 
             # Ajusta el ancho de las columnas
-            max_len = max(df[value].astype(str).map(len).max(), len(value))
+            max_len = max(df[value].fillna('').astype(str).map(len).max(), len(value))
             col_len = max_len + 2 if max_len < 30 else 30
             # Aplica formato comma style a columnas numéricas
             if pd.api.types.is_numeric_dtype(df[value]) and value not in ['Fecha de contabilización', 'FECHA', 'Diferencia fechas (días)', 'movimientos']:
