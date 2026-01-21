@@ -27,6 +27,7 @@ def export_bank(df: pd.DataFrame, output_file, bank, account):
             'num_format': '#,##0.00'
         })
         for col_num, value in enumerate(df.columns):
+            value = str(value)
             # escribimos los encabezados
             if value=='CLAVE':
                 worksheet.write(1, col_num, value, cve_format)
