@@ -167,6 +167,7 @@ def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_fi
                 df = totales
             # Escribe encabezado
             for col_num, value in enumerate(df.columns):
+                value = str(value)
                 worksheet.write(1, col_num, value, get_header_format(value))
                 # subtotales (suma) para importes
                 if 'importe' in value.lower() or 'debe' in value.lower() or 'haber' in value.lower() or 'movimientos' in value.lower():
@@ -187,7 +188,7 @@ def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_fi
                     worksheet.write_formula(0, col_num, formula, header_format_summary)
             
             # Ajusta el ancho de las columnas
-                max_len = max(df[value].astype(str).map(len).max() if value in df.columns else 0, len(value))
+                max_len = max(df[value].fillna('').astype(str).map(len).max() if value in df.columns else 0, len(value))
                 col_len = max_len + 2 if max_len < 30 else 30
                 # Aplica formato comma style a columnas numéricas
                 if pd.api.types.is_numeric_dtype(df[value]) and value not in ['Fecha de contabilización', 'FECHA', 'Diferencia fechas (días)', 'movimientos']:
@@ -315,6 +316,7 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
             worksheet = writer.sheets[sheet]
             # Escribe encabezado
             for col_num, value in enumerate(df.columns):
+                value = str(value)
                 worksheet.write(1, col_num, value, get_header_format_sap(value))
                 # Subtotales (suma) para importes
                 if 'importe' in value.lower() or 'debe' in value.lower() or 'haber' in value.lower() or 'movimientos' in value.lower():
@@ -333,7 +335,7 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
                     worksheet.write_formula(0, col_num, formula, header_format_summary)
 
             # Ajusta el ancho de las columnas
-                max_len = max(df[value].astype(str).map(len).max() if value in df.columns else 0, len(value))
+                max_len = max(df[value].fillna('').astype(str).map(len).max() if value in df.columns else 0, len(value))
                 col_len = max_len + 2 if max_len < 30 else 30
                 # Aplica formato comma style a columnas numéricas
                 if pd.api.types.is_numeric_dtype(df[value]) and value not in ['Fecha', 'FECHA', 'Diferencia fechas (días)', 'movimientos']:
