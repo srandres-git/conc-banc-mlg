@@ -49,7 +49,10 @@ def export_bank(df: pd.DataFrame, output_file, bank, account):
                     worksheet.write_formula(0, col_num, formula,subtotal_sum_format)
 
             # Ajusta el ancho de las columnas
-            max_len = max(df[value].astype(str).str.replace('nan', '', regex=False).map(len).max(), len(value))
+            try:
+                max_len = max(df[value].astype(str).str.replace('nan', '', regex=False).map(len).max(), len(value))
+            except Exception:
+                max_len = 30
             col_len = max_len + 2 if max_len < 30 else 30
             # Aplica formato comma style a columnas numéricas
             if pd.api.types.is_numeric_dtype(df[value]) and value not in ['Fecha de contabilización', 'FECHA', 'Diferencia fechas (días)', 'movimientos']:
@@ -188,7 +191,10 @@ def export_bank_reconciliation(conciliacion_edo_cta_sap: pd.DataFrame, output_fi
                     worksheet.write_formula(0, col_num, formula, header_format_summary)
             
             # Ajusta el ancho de las columnas
-                max_len = max(df[value].astype(str).str.replace('nan', '', regex=False).map(len).max(), len(value))
+                try:
+                    max_len = max(df[value].astype(str).str.replace('nan', '', regex=False).map(len).max(), len(value))
+                except Exception:
+                    max_len = 30
                 col_len = max_len + 2 if max_len < 30 else 30
                 # Aplica formato comma style a columnas numéricas
                 if pd.api.types.is_numeric_dtype(df[value]) and value not in ['Fecha de contabilización', 'FECHA', 'Diferencia fechas (días)', 'movimientos']:
@@ -335,7 +341,10 @@ def export_sap_reconciliation(conciliacion_sap_vs_edo: pd.DataFrame, output_file
                     worksheet.write_formula(0, col_num, formula, header_format_summary)
 
             # Ajusta el ancho de las columnas
-                max_len = max(df[value].astype(str).str.replace('nan', '', regex=False).map(len).max(), len(value))
+                try:
+                    max_len = max(df[value].astype(str).str.replace('nan', '', regex=False).map(len).max(), len(value))
+                except Exception:
+                    max_len = 30
                 col_len = max_len + 2 if max_len < 30 else 30
                 # Aplica formato comma style a columnas numéricas
                 if pd.api.types.is_numeric_dtype(df[value]) and value not in ['Fecha', 'FECHA', 'Diferencia fechas (días)', 'movimientos']:
