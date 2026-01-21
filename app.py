@@ -73,9 +73,9 @@ if uploaded_files['sap']:
                 st.success(f'Reporte SAP procesado correctamente: {len(sap_caja)} filas.')
             except KeyError as e:
                 st.error(f'Error al leer los encabezados del archivo de SAP: {e}')
-st.session_state['conc_button'] = st.container(key='conc_button')
-st.session_state['conc_bancos'] = st.container(key='conc_bancos')
-st.session_state['conc_sap'] = st.container(key='conc_sap')
+st.session_state['conc_button'] = st.container()#key='conc_button')
+st.session_state['conc_bancos'] = st.container()#key='conc_bancos')
+st.session_state['conc_sap'] = st.container()#key='conc_sap')
 # Validamos que se haya ingresado al menos un estado de cuenta, el reporte de SAP y el periodo a conciliar
 if len(dfs_edo_cta)>=1 and uploaded_files['sap'] and periodo:
     with st.session_state['conc_button']:
