@@ -47,6 +47,10 @@ def format_sap_caja(sap_caja: pd.DataFrame, periodo: tuple[date,date]) -> pd.Dat
     sap_caja['Fecha de contabilización'] = pd.to_datetime(sap_caja['Fecha de contabilización'],errors='raise', format=DATE_FORMAT)
     # dejamos solo los movimientos que están dentro del periodo a conciliar
     sap_caja = sap_caja[(sap_caja['Fecha de contabilización'].dt.date >= periodo[0]) & (sap_caja['Fecha de contabilización'].dt.date <= periodo[1])]
+    # si no hay movimientos en el periodo, retornamos un dataframe vacío (mismas columnas) y mandamos un mensaje
+    if len(sap_caja) == 0:
+        st.warning(f"No hay movimientos en el periodo {periodo[0]} - {periodo[1]}")
+        return pd.DataFrame(columns=sap_caja.columns)
     # hay valores no convertibles a datetime?
     if sap_caja['Fecha de contabilización'].isnull().sum() > 0:
         print(f"Hay {sap_caja['Fecha de contabilización'].isnull().sum()} valores no convertibles a datetime en 'Fecha de contabilización'")    
