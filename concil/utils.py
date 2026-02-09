@@ -22,7 +22,7 @@ def separar_texto_cabecera(texto):
         # verificamos que se pueda extraer algún formato de clave de movimiento bancario:
         # [T o G][10 dígitos]
         # [TMLG, NPRO o REEM][6 dígitos]
-        if re.match(r'^[TG]\d{10}$', partes[0]) or re.match(r'^(TMLG|NPRO|REEM)\d{6}$', partes[0]):
+        elif re.match(r'^[TG]\d{10}$', partes[0]) or re.match(r'^(TMLG|NPRO|REEM)\d{6}$', partes[0]):
             return '#', partes[0], '#'
         # si no, este será el nombre de la transferencia         
         else:
