@@ -8,9 +8,9 @@ from concil.config import SEPARADOR
 def separar_texto_cabecera(texto):
     partes = texto.split(SEPARADOR)
     if len(partes) >= 3:
-        return partes[0], partes[1], partes[2]
+        split_text = partes[0], partes[1], partes[2]
     elif len(partes) == 2:
-        return partes[0],  partes[1], '#'
+        split_text = partes[0],  partes[1], '#'
     elif len(partes) == 1:
         # buscamos el patrón [4 dígitos]_[T o G][10 dígitos], donde los 4 dígitos son el tipo de movimiento
         # y los 10 dígitos son la clave de movimiento bancario
@@ -18,18 +18,22 @@ def separar_texto_cabecera(texto):
         if match:
             tipo_movimiento = match.group(1)
             clave_mov_bancario = match.group(2)
-            return tipo_movimiento, clave_mov_bancario, '#' 
+            split_text = tipo_movimiento, clave_mov_bancario, '#' 
         # verificamos que se pueda extraer algún formato de clave de movimiento bancario:
         # [T o G][10 dígitos]
         # [TMLG, NPRO o REEM][6 dígitos]
         elif re.match(r'^[TG]\d{10}$', partes[0]) or re.match(r'^(TMLG|NPRO|REEM)\d{6}$', partes[0]):
-            return '#', partes[0], '#'
+            split_text = '#', partes[0], '#'
         # si no, este será el nombre de la transferencia         
         else:
-            return '#', '#', partes[0]
+            split_text = '#', '#', partes[0]
     else:
-        return '#', '#', '#'
-    
+        split_text = '#', '#', '#'
+    # validar que split_text tenga siempre 3 elementos
+    if len(split_text) != 3:
+        split_text = '#', '#', '#'
+    return split_text
+
 def get_current_month_range()->tuple[date, date]:
     """Obtiene las fechas del primer y último día del mes actual"""
     # Current date
