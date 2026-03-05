@@ -52,12 +52,15 @@ def get_encoding(uploaded_file):
     encoding = result['encoding']
     return encoding
 
-def txt_to_df(uploaded_file)->pd.DataFrame:
+def txt_to_df(uploaded_file, default_encoding=None)->pd.DataFrame:
     content = uploaded_file.read()               # bytes
-    encoding = chardet.detect(content)['encoding']
-    if encoding is None:
-        print("No se pudo detectar la codificación del archivo.")
-        encoding = "latin-1"
+    if default_encoding:
+        encoding = default_encoding
+    else:    
+        encoding = chardet.detect(content)['encoding']
+        if encoding is None:
+            print("No se pudo detectar la codificación del archivo.")
+            encoding = "latin-1"
     text = content.decode(encoding)              # str
     data = text.splitlines()                    # lista de líneas
 
