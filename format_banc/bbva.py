@@ -26,7 +26,10 @@ def asign_cve_bbva(row):
     # la referencia es la cadena de texto que aparece después de "/"
     match = re.search(r"/(.+)", ref)
     if match:
-        ref = match.group(1)
+        # concatenamos todo lo que viene después de "/" (puede haber varios o ningún match)
+        ref = "".join(match.groups())
+    else:
+        ref = ""
     cve = np.nan
     # fecha hasta día (sin hora) en formato DDMMYYYY, dado que viene como "DD-MM-YYYY"
     fecha = str(row["Día"])
@@ -102,7 +105,8 @@ def format_bbva(edo_cta:pd.DataFrame, cta: str)->pd.DataFrame:
     # el concepto es lo que aparece en "Concepto / Referencia" antes de "/"
     # y referencia es lo que aparece después de "/"
     edo_cta["CONCEPTO"] = edo_cta["Concepto / Referencia"].str.split("/").str[0]
-    edo_cta["REFERENCIA"] = edo_cta["Concepto / Referencia"].str.split("/").str[1]
+    # la referencia es lo que aparece después de "/" (puede haber varios o ningún match)
+    edo_cta["REFERENCIA"] = edo_cta["Concepto / Referencia"].str.split("/").str[1:].apply(lambda x: "/".join(x) if isinstance(x, list) else "") 
     # asignamos una columna de "BANCO" con el nombre del banco
     edo_cta["BANCO"] = 'BBVA'
     # las columnas "REFERENCIA BANCARIA" y "DESCRIPCIÓN" se llenan con "#"
