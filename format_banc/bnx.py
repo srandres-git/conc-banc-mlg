@@ -1,30 +1,33 @@
 import pandas as pd
 import numpy as np
 import re
-import chardet
+import streamlit as st
 
 def preprocess_bnx(uploaded_file)->pd.DataFrame:
     # # para Banamex, se recibe como .csv    
     # primero leemos el archivo csv y guardamos todas las filas
     content = uploaded_file.read()               # bytes
-    encoding = "latin-1"                          # codificación por defecto
+    encoding = "latin-1" # por defecto, pero se puede detectar con chardet si es necesario
     text = content.decode(encoding)              # str
     lines = text.splitlines()                    # lista de líneas
 
-    
     # buscamos la fila que contiene "Detalle de Movimientos - Depósitos y Retiros"
-    header_row = next(i for i, line in enumerate(lines) if "Detalle de Movimientos - Depósitos y Retiros" in line)+1
+    header_row = next((i for i, line in enumerate(lines) if "Detalle de Movimientos - Depósitos y Retiros" in line), None)
+    if header_row is None:
+        st.error("No se encontró la fila de encabezado en el archivo. Asegúrate de que el formato del archivo sea correcto.")
+        return pd.DataFrame(columns=["Fecha", "Descripción", "Depósitos", "Retiros", "Saldo"])
+    header_row += 1
     data = lines[header_row:]
     # creamos un DataFrame a partir de las líneas del archivo csv
     from io import StringIO
     data_str = "\n".join(data)
     df = pd.read_csv(StringIO(data_str), sep=",", encoding=encoding)
-    # print(df.columns)
+    print(df.columns)
     # Depósitos, Retiros y Saldo son columnas que contienen valores numéricos
     # convertimos las columnas "Depósitos" y "Retiros" a tipo numérico rellenando los nulos con 0
-    df["Depósitos"] = pd.to_numeric(df["Depósitos"].str.replace(",", "").str.replace(" ", ""), errors="coerce").fillna(0)
-    df["Retiros"] = pd.to_numeric(df["Retiros"].str.replace(",", "").str.replace(" ", ""), errors="coerce").fillna(0)
-    df["Saldo"] = pd.to_numeric(df["Saldo"].str.replace(",", "").str.replace(" ", ""), errors="coerce").fillna(0)
+    df["Depósitos"] = pd.to_numeric(df["Depósitos"].astype(str).str.replace(",", "").str.replace(" ", ""), errors="coerce").fillna(0)
+    df["Retiros"] = pd.to_numeric(df["Retiros"].astype(str).str.replace(",", "").str.replace(" ", ""), errors="coerce").fillna(0)
+    df["Saldo"] = pd.to_numeric(df["Saldo"].astype(str).str.replace(",", "").str.replace(" ", ""), errors="coerce").fillna(0)
 
     # Descripción a string
     df["Descripción"] = df["Descripción"].astype(str)
